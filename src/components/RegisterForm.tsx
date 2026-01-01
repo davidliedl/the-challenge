@@ -38,6 +38,10 @@ export function RegisterForm({
   const currentUserData = users?.find((u) => u.name === name);
   const existingExercises = currentUserData?.goals.map((g) => g.exercise) || [];
 
+  const isNameTaken =
+    !currentUser &&
+    users?.some((u) => u.name.toLowerCase() === name.trim().toLowerCase());
+
   const toggleSelection = (
     ex: string,
     level: "S" | "M" | "L" | "XL",
@@ -59,7 +63,7 @@ export function RegisterForm({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (name && selections.length > 0) {
+    if (name && selections.length > 0 && !isNameTaken) {
       register.mutate({
         name,
         goals: selections.map((s) => ({
@@ -78,7 +82,7 @@ export function RegisterForm({
       </h2>
       <form onSubmit={handleSubmit} className="space-y-8">
         {!currentUser && (
-          <div className="max-w-md mx-auto">
+          <div className="max-w-md mx-auto space-y-3">
             <label className="block text-sm font-semibold text-slate-700 mb-2 text-center text-lg">
               Dein Name
             </label>
@@ -86,10 +90,26 @@ export function RegisterForm({
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-slate-800 focus:border-transparent outline-none transition-all text-center text-xl font-medium"
+              className={cn(
+                "w-full px-4 py-3 rounded-xl border focus:ring-2 focus:border-transparent outline-none transition-all text-center text-xl font-medium",
+                isNameTaken
+                  ? "border-amber-300 bg-amber-50 focus:ring-amber-500"
+                  : "border-slate-200 focus:ring-slate-800"
+              )}
               placeholder="Name eingeben..."
               required
             />
+            {isNameTaken && (
+              <div className="bg-amber-100 border border-amber-200 p-3 rounded-xl text-amber-800 text-sm animate-in fade-in slide-in-from-top-1">
+                <p className="font-bold mb-1">
+                  Dieser Name ist bereits vergeben.
+                </p>
+                <p>
+                  Füge z.B. den ersten Buchstaben deines Nachnamens hinzu (z.B.{" "}
+                  {name} M.)
+                </p>
+              </div>
+            )}
           </div>
         )}
 
@@ -184,7 +204,12 @@ export function RegisterForm({
 
         <button
           type="submit"
-          disabled={!name || selections.length === 0 || register.isPending}
+          disabled={
+            !name ||
+            selections.length === 0 ||
+            register.isPending ||
+            isNameTaken
+          }
           className="w-full py-4 bg-slate-800 text-white rounded-xl font-bold text-lg hover:bg-slate-900 focus:ring-4 focus:ring-slate-100 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {register.isPending
