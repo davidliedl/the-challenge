@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { api } from "~/trpc/react";
+import { EXERCISE_CATALOG } from "~/constants";
 import {
   BarChart,
   Bar,
@@ -15,7 +16,13 @@ import {
   Pie,
   Cell,
 } from "recharts";
-import { ChartLine, CalendarDays, Dumbbell, UserCheck } from "lucide-react";
+import {
+  ChartLine,
+  CalendarDays,
+  Dumbbell,
+  UserCheck,
+  Trophy,
+} from "lucide-react";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -41,6 +48,10 @@ export function Dashboard({
   setCurrentUser: (name: string) => void;
 }) {
   const [detailMode, setDetailMode] = useState<"year" | "month">("year");
+  const [raceExercise, setRaceExercise] = useState<string>(
+    EXERCISE_CATALOG[0]?.exercise || ""
+  );
+  const [raceMode, setRaceMode] = useState<"year" | "month">("year");
 
   const { data: stats, isLoading } = api.achievement.getStats.useQuery();
 
@@ -60,7 +71,7 @@ export function Dashboard({
   const monthPacer = (dayOfMonth / daysInMonth) * 100;
 
   const chartData = useMemo(() => {
-    if (!stats) return { year: [], month: [], exercise: [] };
+    if (!stats) return { year: [], month: [], exercise: [], race: [] };
 
     const yearData = stats.map((u) => {
       let totalPerc = 0;
@@ -110,6 +121,36 @@ export function Dashboard({
       ([name, value]) => ({ name, value })
     );
 
+    const raceResults = stats
+      .filter((u) => u.goals.some((g) => g.exercise === raceExercise))
+      .map((u) => {
+        const goal = u.goals.find((g) => g.exercise === raceExercise)!;
+        const target = raceMode === "year" ? goal.target : goal.target / 12;
+        const sum = u.achievements
+          .filter((a) => {
+            if (a.exercise !== raceExercise) return false;
+            if (raceMode === "month") {
+              const d = new Date(a.date);
+              return (
+                d.getMonth() === now.getMonth() &&
+                d.getFullYear() === now.getFullYear()
+              );
+            }
+            return true;
+          })
+          .reduce((acc, a) => acc + a.value, 0);
+
+        return {
+          name: u.name,
+          progress: parseFloat(((sum / target) * 100).toFixed(1)),
+          absolute: sum.toFixed(0),
+          unit: goal.unit,
+        };
+      })
+      .sort((a, b) => b.progress - a.progress);
+
+    const racePacerVal = raceMode === "year" ? yearPacer : monthPacer;
+
     return {
       year: [
         { name: "Push (Pacer)", progress: yearPacer.toFixed(1) },
@@ -120,8 +161,17 @@ export function Dashboard({
         ...monthData,
       ],
       exercise: exerciseData,
+      race: [
+        {
+          name: "Push (Pacer)",
+          progress: parseFloat(racePacerVal.toFixed(1)),
+          absolute: "",
+          unit: "",
+        },
+        ...raceResults,
+      ],
     };
-  }, [stats, yearPacer, monthPacer, now]);
+  }, [stats, yearPacer, monthPacer, now, raceExercise, raceMode]);
 
   const selectedStats = stats?.find((u) => u.name === currentUser);
 
@@ -232,36 +282,139 @@ export function Dashboard({
             </div>
           </div>
 
-          {/* Exercise totals */}
+          {/* Rennen Chart */}
           <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
-            <h3 className="mb-6 flex items-center gap-2 text-lg font-bold text-slate-800">
-              <Dumbbell className="text-orange-500" size={20} />
-              Übungs-Vergleich (Total)
-            </h3>
-            <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={chartData.exercise}
-                    innerRadius={60}
-                    outerRadius={80}
-                    paddingAngle={5}
-                    dataKey="value"
-                    label={({ name }) => name}
+            <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+              <h3 className="flex items-center gap-2 text-lg font-bold text-slate-800">
+                <Trophy className="text-orange-500" size={20} />
+                Rennen
+              </h3>
+              <div className="flex gap-2">
+                <select
+                  value={raceExercise}
+                  onChange={(e) => setRaceExercise(e.target.value)}
+                  className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-1 text-sm font-medium text-slate-600 outline-none focus:ring-2 focus:ring-slate-800"
+                >
+                  {EXERCISE_CATALOG.map((ex) => (
+                    <option key={ex.exercise} value={ex.exercise}>
+                      {ex.exercise}
+                    </option>
+                  ))}
+                </select>
+                <div className="flex rounded-lg bg-slate-100 p-0.5">
+                  <button
+                    onClick={() => setRaceMode("year")}
+                    className={cn(
+                      "px-3 py-0.5 rounded-md text-xs font-bold transition-all",
+                      raceMode === "year"
+                        ? "bg-white text-slate-800 shadow-sm"
+                        : "text-slate-500 hover:text-slate-700"
+                    )}
                   >
-                    {chartData.exercise.map((entry, index) => (
-                      <Cell
-                        key={`cell-${index}`}
-                        fill={COLORS[index % COLORS.length]}
-                      />
-                    ))}
-                  </Pie>
-                  <Tooltip
-                    contentStyle={{ borderRadius: "12px", border: "none" }}
-                  />
-                </PieChart>
-              </ResponsiveContainer>
+                    Jahr
+                  </button>
+                  <button
+                    onClick={() => setRaceMode("month")}
+                    className={cn(
+                      "px-3 py-0.5 rounded-md text-xs font-bold transition-all",
+                      raceMode === "month"
+                        ? "bg-white text-slate-800 shadow-sm"
+                        : "text-slate-500 hover:text-slate-700"
+                    )}
+                  >
+                    Monat
+                  </button>
+                </div>
+              </div>
             </div>
+
+            {chartData.race.length <= 1 ? (
+              <div className="flex h-64 items-center justify-center text-sm font-medium text-slate-400">
+                Keine Teilnehmer für diese Übung.
+              </div>
+            ) : (
+              <div className="h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={chartData.race} layout="vertical">
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      horizontal={true}
+                      vertical={false}
+                      stroke="#f0f0f0"
+                    />
+                    <XAxis type="number" hide domain={[0, "dataMax + 30"]} />
+                    <YAxis
+                      dataKey="name"
+                      type="category"
+                      axisLine={false}
+                      tickLine={false}
+                      tick={{ fill: "#64748b", fontSize: 11 }}
+                      width={80}
+                    />
+                    <Tooltip
+                      cursor={{ fill: "#f8fafc" }}
+                      content={({ active, payload }) => {
+                        if (active && payload && payload.length) {
+                          const data = payload[0].payload;
+                          return (
+                            <div className="rounded-xl border-none bg-white p-3 shadow-xl">
+                              <p className="text-sm font-bold text-slate-800">
+                                {data.name}
+                              </p>
+                              <p className="text-xs text-slate-500">
+                                {data.progress}% (
+                                {data.name === "Push (Pacer)"
+                                  ? "Pacer"
+                                  : `${data.absolute} ${data.unit}`}
+                                )
+                              </p>
+                            </div>
+                          );
+                        }
+                        return null;
+                      }}
+                    />
+                    <Bar
+                      dataKey="progress"
+                      radius={[0, 4, 4, 0]}
+                      label={(props: any) => {
+                        const { x, y, width, height, value, payload } = props;
+                        if (!payload) return null;
+                        const labelText =
+                          payload.name === "Push (Pacer)"
+                            ? `${value}%`
+                            : `${value}% (${payload.absolute})`;
+                        return (
+                          <text
+                            x={x + width + 5}
+                            y={y + height / 2}
+                            fill="#64748b"
+                            fontSize={10}
+                            textAnchor="start"
+                            dominantBaseline="middle"
+                          >
+                            {labelText}
+                          </text>
+                        );
+                      }}
+                    >
+                      {chartData.race.map((entry, index) => (
+                        <Cell
+                          key={`cell-${index}`}
+                          fill={
+                            entry.name === "Push (Pacer)"
+                              ? "#94a3b8"
+                              : entry.name === currentUser
+                              ? "#f59e0b"
+                              : "#e2e8f0"
+                          }
+                        />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            )}
           </div>
         </div>
 
