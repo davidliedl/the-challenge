@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { api } from "~/trpc/react";
 import { EXERCISE_CATALOG } from "~/constants";
 import {
@@ -53,6 +53,17 @@ export function Dashboard({
   const [displayMode, setDisplayMode] = useState<"relative" | "absolute">(
     "relative"
   );
+  const [activeTooltip, setActiveTooltip] = useState<{
+    id: string; // exercise + name or exercise + lvl
+    type: "user" | "pacer";
+  } | null>(null);
+
+  // Clear tooltips on global click/touch
+  useEffect(() => {
+    const handleClick = () => setActiveTooltip(null);
+    window.addEventListener("click", handleClick);
+    return () => window.removeEventListener("click", handleClick);
+  }, []);
 
   const { data: stats, isLoading } = api.achievement.getStats.useQuery();
 
@@ -316,6 +327,15 @@ export function Dashboard({
                     return (
                       <div
                         key={lvl}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          const id = `${row.exercise}-${lvl}`;
+                          setActiveTooltip(
+                            activeTooltip?.id === id
+                              ? null
+                              : { id, type: "pacer" }
+                          );
+                        }}
                         className="group/pacer absolute top-0 bottom-0 w-[3px] transition-all duration-1000 z-10 cursor-help"
                         style={{
                           left: `${Math.min(pos, 98)}%`,
@@ -327,8 +347,11 @@ export function Dashboard({
                       >
                         <div
                           className={cn(
-                            "absolute -top-11 left-1/2 -translate-x-1/2 text-white text-[9px] font-black px-2 py-1 rounded-md opacity-0 group-hover/pacer:opacity-100 transition-opacity whitespace-nowrap z-50 shadow-xl",
-                            displayMode === "absolute" ? "" : "bg-slate-900"
+                            "absolute -top-11 left-1/2 -translate-x-1/2 text-white text-[9px] font-black px-2 py-1 rounded-md transition-opacity whitespace-nowrap z-50 shadow-xl pointer-events-none",
+                            displayMode === "absolute" ? "" : "bg-slate-900",
+                            activeTooltip?.id === `${row.exercise}-${lvl}`
+                              ? "opacity-100"
+                              : "opacity-0 group-hover/pacer:opacity-100"
                           )}
                           style={{
                             backgroundColor:
@@ -360,7 +383,6 @@ export function Dashboard({
                     );
                   })}
 
-                  {/* Users */}
                   {row.users.map((u, i) => {
                     const isMe = u.name === currentUser;
                     const pos =
@@ -378,6 +400,15 @@ export function Dashboard({
                         style={{ left: `${Math.min(pos, 98)}%` }}
                       >
                         <div
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            const id = `${row.exercise}-${u.name}`;
+                            setActiveTooltip(
+                              activeTooltip?.id === id
+                                ? null
+                                : { id, type: "user" }
+                            );
+                          }}
                           className={cn(
                             "group/user relative w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-black transition-all hover:scale-110 cursor-help shadow-md",
                             isMe
@@ -392,7 +423,14 @@ export function Dashboard({
                           {u.initials}
 
                           {/* Custom User Tooltip */}
-                          <div className="absolute -top-14 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-[10px] font-bold px-3 py-2 rounded-xl opacity-0 group-hover/user:opacity-100 transition-all scale-75 group-hover/user:scale-100 whitespace-nowrap z-50 pointer-events-none shadow-2xl border border-slate-700">
+                          <div
+                            className={cn(
+                              "absolute -top-14 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-[10px] font-bold px-3 py-2 rounded-xl transition-all scale-75 whitespace-nowrap z-50 pointer-events-none shadow-2xl border border-slate-700",
+                              activeTooltip?.id === `${row.exercise}-${u.name}`
+                                ? "opacity-100 scale-100 mt-[-8px]"
+                                : "opacity-0 group-hover/user:opacity-100 group-hover/user:scale-100"
+                            )}
+                          >
                             <div className="flex items-center gap-2 mb-1">
                               <span
                                 className="w-2 h-2 rounded-full"
