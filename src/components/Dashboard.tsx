@@ -143,7 +143,8 @@ export function Dashboard({
           })
           .sort((a, b) => b.progress - a.progress);
 
-        const maxAbsolute = catalogInfo.XL * (raceMode === "year" ? 12 : 1);
+        const maxAbsolute =
+          catalogInfo.XL * (raceMode === "year" ? 12 : 1) * 1.2;
 
         return {
           exercise: ex,
@@ -157,6 +158,8 @@ export function Dashboard({
           e !== null && (e.users.length > 0 || !filterMyDisciplines)
       );
   }, [stats, raceMode, now, currentUser, filterMyDisciplines]);
+
+  const VIEW_MAX_PERCENT = 120;
 
   if (isLoading)
     return (
@@ -262,9 +265,21 @@ export function Dashboard({
                   )}
                 </div>
 
-                <div className="relative h-12 flex items-center bg-slate-50/50 rounded-2xl px-4">
+                <div className="relative h-14 flex items-center rounded-2xl px-4">
                   {/* Track line */}
                   <div className="absolute inset-x-4 h-[4px] bg-slate-100 rounded-full" />
+
+                  {/* 100% Target Line (Relative Mode only) */}
+                  {displayMode === "relative" && (
+                    <div
+                      className="absolute top-0 bottom-0 w-[2px] bg-slate-200 z-0"
+                      style={{ left: `${(100 / VIEW_MAX_PERCENT) * 100}%` }}
+                    >
+                      <span className="absolute -bottom-5 left-0 -translate-x-1/2 text-[9px] font-black text-slate-300 uppercase tracking-tighter">
+                        Target
+                      </span>
+                    </div>
+                  )}
 
                   {/* Vertical Goal Lines (Absolute Mode only) */}
                   {displayMode === "absolute" &&
@@ -276,10 +291,7 @@ export function Dashboard({
                         <div
                           key={lvl}
                           className="absolute top-0 bottom-0 w-[1px] border-l border-dashed border-slate-300 z-0"
-                          style={{
-                            left: `calc(${pos}% + (4px * (1 - ${pos}/100)))`,
-                            paddingLeft: "4px",
-                          }}
+                          style={{ left: `${pos}%` }}
                         >
                           <span className="absolute -top-5 left-0 -translate-x-1/2 text-[8px] font-black text-slate-300">
                             {lvl}
@@ -292,7 +304,7 @@ export function Dashboard({
                   {(["S", "M", "L", "XL"] as const).map((lvl) => {
                     let pos = 0;
                     if (displayMode === "relative") {
-                      pos = pacerPercent * 100;
+                      pos = ((pacerPercent * 100) / VIEW_MAX_PERCENT) * 100;
                       // In relative mode, they all overlap, so we only show one
                       if (lvl !== "S") return null;
                     } else {
@@ -306,10 +318,7 @@ export function Dashboard({
                         key={lvl}
                         className="group/pacer absolute top-0 bottom-0 w-[3px] transition-all duration-1000 z-10 cursor-help"
                         style={{
-                          left: `calc(${Math.min(
-                            pos,
-                            105
-                          )}% + (4px * (1 - ${pos}/100)))`,
+                          left: `${Math.min(pos, 98)}%`,
                           backgroundColor:
                             displayMode === "absolute"
                               ? LEVEL_COLORS[lvl]
@@ -318,7 +327,7 @@ export function Dashboard({
                       >
                         <div
                           className={cn(
-                            "absolute -top-10 left-1/2 -translate-x-1/2 text-white text-[9px] font-black px-2 py-1 rounded-md opacity-0 group-hover/pacer:opacity-100 transition-opacity whitespace-nowrap z-50 shadow-xl",
+                            "absolute -top-11 left-1/2 -translate-x-1/2 text-white text-[9px] font-black px-2 py-1 rounded-md opacity-0 group-hover/pacer:opacity-100 transition-opacity whitespace-nowrap z-50 shadow-xl",
                             displayMode === "absolute" ? "" : "bg-slate-900"
                           )}
                           style={{
@@ -330,11 +339,13 @@ export function Dashboard({
                         >
                           PUSH {displayMode === "absolute" ? lvl : ""}:{" "}
                           {(
-                            pos *
+                            pacerPercent *
                             (displayMode === "absolute"
-                              ? row.maxAbsolute / 100
-                              : 1)
+                              ? row.catalog[lvl] *
+                                (raceMode === "year" ? 12 : 1)
+                              : 100)
                           ).toFixed(0)}
+                          {displayMode === "relative" ? "%" : ""}
                           <div
                             className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent"
                             style={{
@@ -352,9 +363,9 @@ export function Dashboard({
                   {/* Users */}
                   {row.users.map((u, i) => {
                     const isMe = u.name === currentUser;
-                    let pos =
+                    const pos =
                       displayMode === "relative"
-                        ? u.progress
+                        ? (u.progress / VIEW_MAX_PERCENT) * 100
                         : (u.absolute / row.maxAbsolute) * 100;
 
                     return (
@@ -364,16 +375,11 @@ export function Dashboard({
                           "absolute -translate-x-1/2 transition-all duration-1000 ease-out",
                           isMe ? "z-30" : "z-20"
                         )}
-                        style={{
-                          left: `calc(${Math.min(
-                            pos,
-                            110
-                          )}% + (4px * (1 - ${pos}/100)))`,
-                        }}
+                        style={{ left: `${Math.min(pos, 98)}%` }}
                       >
                         <div
                           className={cn(
-                            "group/user relative w-10 h-10 rounded-full flex items-center justify-center text-xs font-black transition-all hover:scale-110 cursor-help shadow-lg",
+                            "group/user relative w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-black transition-all hover:scale-110 cursor-help shadow-md",
                             isMe
                               ? "ring-4 ring-white outline outline-2 outline-slate-800"
                               : "ring-2 ring-white"
