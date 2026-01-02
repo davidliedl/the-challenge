@@ -36,7 +36,7 @@ export default function OverviewPage() {
   return (
     <Layout>
       <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-        <header className="bg-white rounded-3xl p-8 border border-slate-100 shadow-sm">
+        <header className="bg-white rounded-3xl p-8 border border-slate-100">
           <h1 className="flex items-center gap-3 text-3xl font-black text-slate-800 tracking-tighter uppercase">
             <ListChecks className="text-amber-500 w-8 h-8" />
             ÜBERBLICK

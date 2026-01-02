@@ -43,7 +43,7 @@ export function LogForm({
   };
 
   return (
-    <div className="max-w-3xl mx-auto bg-white p-8 rounded-2xl shadow-sm border border-slate-100">
+    <div className="max-w-3xl mx-auto bg-white p-8 rounded-2xl border border-slate-100">
       <h2 className="text-2xl font-bold mb-6 text-center text-slate-800 flex items-center justify-center gap-2">
         <PenLine className="text-emerald-500" />
         Training eintragen
@@ -129,7 +129,7 @@ export function LogForm({
           disabled={
             !currentUser || !exercise || !value || logAchievement.isPending
           }
-          className="w-full py-4 bg-emerald-600 text-white rounded-xl font-bold text-lg hover:bg-emerald-700 shadow-lg shadow-emerald-200 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full py-4 bg-emerald-600 text-white rounded-xl font-bold text-lg hover:bg-emerald-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {logAchievement.isPending ? "Wird gespeichert..." : "Speichern"}
         </button>

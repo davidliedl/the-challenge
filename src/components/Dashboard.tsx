@@ -202,7 +202,7 @@ export function Dashboard({
           className={cn(
             "flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-black transition-all",
             activeTab === "race"
-              ? "bg-white text-slate-800 shadow-sm"
+              ? "bg-white text-slate-800"
               : "text-slate-400 hover:text-slate-600"
           )}
         >
@@ -214,7 +214,7 @@ export function Dashboard({
           className={cn(
             "flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-black transition-all",
             activeTab === "overview"
-              ? "bg-white text-slate-800 shadow-sm"
+              ? "bg-white text-slate-800"
               : "text-slate-400 hover:text-slate-600"
           )}
         >
@@ -226,7 +226,7 @@ export function Dashboard({
           className={cn(
             "flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-black transition-all",
             activeTab === "log"
-              ? "bg-white text-slate-800 shadow-sm"
+              ? "bg-white text-slate-800"
               : "text-slate-400 hover:text-slate-600"
           )}
         >
@@ -244,12 +244,12 @@ export function Dashboard({
       ) : (
         <div className="grid grid-cols-1 gap-8">
           {/* Race View */}
-          <div className="rounded-3xl border border-slate-100 bg-white p-8 shadow-sm">
+          <div className="rounded-3xl border border-slate-100 bg-white p-8">
             <div className="mb-10 flex flex-wrap items-center justify-between gap-6">
               <div>
                 <h3 className="flex items-center gap-3 text-2xl font-black text-slate-800 tracking-tight">
                   <Trophy className="text-amber-500" size={28} />
-                  THE RACE
+                  Das Rennen
                 </h3>
                 <p className="text-slate-400 font-medium text-sm mt-1">
                   Wer hat die Nase vorn?
@@ -271,13 +271,13 @@ export function Dashboard({
                 </button>
 
                 {/* Relative/Absolute Toggle */}
-                <div className="flex rounded-xl bg-slate-100 p-1 shadow-inner">
+                <div className="flex rounded-xl bg-slate-100 p-1">
                   <button
                     onClick={() => setDisplayMode("relative")}
                     className={cn(
                       "px-4 py-1.5 rounded-lg text-xs font-black transition-all",
                       displayMode === "relative"
-                        ? "bg-white text-slate-800 shadow-md"
+                        ? "bg-white text-slate-800"
                         : "text-slate-400 hover:text-slate-600"
                     )}
                   >
@@ -288,7 +288,7 @@ export function Dashboard({
                     className={cn(
                       "px-4 py-1.5 rounded-lg text-xs font-black transition-all",
                       displayMode === "absolute"
-                        ? "bg-white text-slate-800 shadow-md"
+                        ? "bg-white text-slate-800"
                         : "text-slate-400 hover:text-slate-600"
                     )}
                   >
@@ -296,13 +296,13 @@ export function Dashboard({
                   </button>
                 </div>
 
-                <div className="flex rounded-xl bg-slate-100 p-1 shadow-inner">
+                <div className="flex rounded-xl bg-slate-100 p-1">
                   <button
                     onClick={() => setRaceMode("year")}
                     className={cn(
                       "px-6 py-2 rounded-lg text-sm font-black transition-all",
                       raceMode === "year"
-                        ? "bg-white text-slate-800 shadow-md"
+                        ? "bg-white text-slate-800"
                         : "text-slate-400 hover:text-slate-600"
                     )}
                   >
@@ -313,7 +313,7 @@ export function Dashboard({
                     className={cn(
                       "px-6 py-2 rounded-lg text-sm font-black transition-all",
                       raceMode === "month"
-                        ? "bg-white text-slate-800 shadow-md"
+                        ? "bg-white text-slate-800"
                         : "text-slate-400 hover:text-slate-600"
                     )}
                   >
@@ -408,7 +408,7 @@ export function Dashboard({
                         >
                           <div
                             className={cn(
-                              "absolute -top-11 left-1/2 -translate-x-1/2 text-white text-[9px] font-black px-2 py-1 rounded-md transition-opacity whitespace-nowrap z-50 shadow-xl pointer-events-none",
+                              "absolute -top-11 left-1/2 -translate-x-1/2 text-white text-[9px] font-black px-2 py-1 rounded-md transition-opacity whitespace-nowrap z-50 pointer-events-none",
                               displayMode === "absolute" ? "" : "bg-slate-900",
                               activeTooltip?.id === `${row.exercise}-${lvl}`
                                 ? "opacity-100"
@@ -529,20 +529,20 @@ export function Dashboard({
           </div>
 
           {/* Existing Status detail */}
-          <div className="rounded-3xl border border-slate-100 bg-white p-8 shadow-sm">
+          <div className="rounded-3xl border border-slate-100 bg-white p-8">
             <div className="mb-6 flex flex-wrap items-center justify-between gap-6">
               <h3 className="flex items-center gap-3 text-xl font-black text-slate-800 uppercase tracking-tighter">
                 <UserCheck className="text-amber-500" size={24} />
                 Dein Status
               </h3>
 
-              <div className="flex rounded-xl bg-slate-100 p-1 shadow-inner">
+              <div className="flex rounded-xl bg-slate-100 p-1">
                 <button
                   onClick={() => setRaceMode("year")}
                   className={cn(
                     "px-4 py-1.5 rounded-lg text-xs font-black transition-all",
                     raceMode === "year"
-                      ? "bg-white text-slate-800 shadow-md"
+                      ? "bg-white text-slate-800"
                       : "text-slate-400 hover:text-slate-600"
                   )}
                 >
@@ -553,7 +553,7 @@ export function Dashboard({
                   className={cn(
                     "px-4 py-1.5 rounded-lg text-xs font-black transition-all",
                     raceMode === "month"
-                      ? "bg-white text-slate-800 shadow-md"
+                      ? "bg-white text-slate-800"
                       : "text-slate-400 hover:text-slate-600"
                   )}
                 >
@@ -595,7 +595,7 @@ export function Dashboard({
                   return (
                     <div
                       key={g.id}
-                      className="bg-slate-50 rounded-2xl p-6 border border-slate-100 group hover:shadow-md transition-all"
+                      className="bg-slate-50 rounded-2xl p-6 border border-slate-100 group transition-all"
                     >
                       <div className="flex justify-between items-start mb-4">
                         <div>
@@ -616,7 +616,7 @@ export function Dashboard({
                         </div>
                         <span
                           className={cn(
-                            "text-xl font-black px-3 py-1 rounded-xl shadow-sm",
+                            "text-xl font-black px-3 py-1 rounded-xl",
                             p >= 100
                               ? "bg-emerald-500 text-white"
                               : "bg-white text-slate-800"

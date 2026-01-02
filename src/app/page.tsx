@@ -32,7 +32,7 @@ export default function Home() {
     <Layout>
       <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-12">
         <header className="text-center space-y-4">
-          <div className="inline-flex p-4 bg-amber-500 rounded-3xl shadow-2xl shadow-amber-200 animate-bounce transition-all">
+          <div className="inline-flex p-4 bg-amber-500 rounded-3xl animate-bounce transition-all">
             <Trophy className="text-white w-12 h-12" />
           </div>
           <h1 className="text-5xl font-black text-slate-800 tracking-tighter uppercase">

@@ -45,11 +45,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 font-sans antialiased pb-20">
+    <div className="min-h-screen bg-slate-100 text-slate-900 font-sans antialiased pb-20">
       {currentUser && (
         <div className="container mx-auto px-4 pt-6 space-y-4 max-w-6xl">
           {/* Top Row: Title & User */}
-          <header className="bg-white rounded-3xl p-4 px-6 shadow-sm border border-slate-100 flex items-center justify-between">
+          <header className="bg-white rounded-3xl p-4 px-6 border border-slate-100 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <Trophy className="text-amber-500 w-6 h-6" />
               <h1 className="text-xl font-black text-slate-800 tracking-tight">
@@ -76,7 +76,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
           </header>
 
           {/* Bottom Row: Navigation */}
-          <nav className="bg-white rounded-3xl p-2 shadow-sm border border-slate-100 grid grid-cols-3 gap-2">
+          <nav className="bg-white rounded-3xl p-2 border border-slate-100 grid grid-cols-3 gap-2">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = pathname === item.href;
@@ -87,7 +87,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
                   className={cn(
                     "flex items-center justify-center gap-3 px-4 py-3 rounded-2xl transition-all",
                     isActive
-                      ? "bg-slate-800 text-white shadow-md"
+                      ? "bg-slate-800 text-white"
                       : "text-slate-500 hover:bg-slate-50 hover:text-slate-800"
                   )}
                 >

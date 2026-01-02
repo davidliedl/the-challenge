@@ -119,13 +119,13 @@ export default function StatusPage() {
               Meine Disziplinen
             </h2>
 
-            <div className="flex rounded-xl bg-slate-100 p-1 shadow-inner">
+            <div className="flex rounded-xl bg-slate-200 p-1">
               <button
                 onClick={() => setRaceMode("year")}
                 className={cn(
                   "px-6 py-2 rounded-lg text-sm font-black transition-all",
                   raceMode === "year"
-                    ? "bg-white text-slate-800 shadow-md"
+                    ? "bg-white text-slate-800"
                     : "text-slate-400 hover:text-slate-600"
                 )}
               >
@@ -136,7 +136,7 @@ export default function StatusPage() {
                 className={cn(
                   "px-6 py-2 rounded-lg text-sm font-black transition-all",
                   raceMode === "month"
-                    ? "bg-white text-slate-800 shadow-md"
+                    ? "bg-white text-slate-800"
                     : "text-slate-400 hover:text-slate-600"
                 )}
               >
@@ -176,7 +176,7 @@ export default function StatusPage() {
               return (
                 <div
                   key={g.id}
-                  className="bg-white rounded-3xl p-6 border border-slate-100 group hover:shadow-xl transition-all duration-300"
+                  className="bg-white rounded-3xl p-6 border border-slate-100 group transition-all duration-300"
                 >
                   <div className="flex justify-between items-start mb-6">
                     <div>
@@ -197,7 +197,7 @@ export default function StatusPage() {
                     </div>
                     <span
                       className={cn(
-                        "text-2xl font-black px-4 py-1 rounded-2xl shadow-sm border",
+                        "text-2xl font-black px-4 py-1 rounded-2xl border",
                         p >= 100
                           ? "bg-emerald-500 text-white border-emerald-400"
                           : "bg-slate-50 text-slate-800 border-slate-100"
@@ -249,7 +249,7 @@ export default function StatusPage() {
                       <button
                         onClick={() => handleQuickLog(g.exercise)}
                         disabled={loggingId === g.exercise}
-                        className="bg-slate-800 hover:bg-slate-900 text-white p-2 rounded-xl transition-all shadow-md active:scale-95 disabled:opacity-50"
+                        className="bg-slate-800 hover:bg-slate-900 text-white p-2 rounded-xl transition-all active:scale-95 disabled:opacity-50"
                       >
                         {loggingId === g.exercise ? (
                           <Loader2 size={18} className="animate-spin" />
@@ -266,7 +266,7 @@ export default function StatusPage() {
         </section>
 
         {/* Progress Log Accordion */}
-        <section className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+        <section className="bg-white rounded-3xl border border-slate-100 overflow-hidden">
           <button
             onClick={() => setIsLogOpen(!isLogOpen)}
             className="w-full px-8 py-6 flex items-center justify-between hover:bg-slate-50 transition-colors"
@@ -315,7 +315,7 @@ export default function StatusPage() {
         </section>
 
         {/* Add more goals / RegisterForm Accordion */}
-        <section className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+        <section className="bg-white rounded-3xl border border-slate-100 overflow-hidden">
           <button
             onClick={() => setIsRegisterOpen(!isRegisterOpen)}
             className="w-full px-8 py-6 flex items-center justify-between hover:bg-slate-50 transition-colors"

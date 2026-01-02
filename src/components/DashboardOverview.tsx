@@ -132,7 +132,7 @@ export function DashboardOverview({
   if (!users) return null;
 
   return (
-    <div className="overflow-x-auto rounded-3xl border border-slate-100 bg-white p-8 shadow-sm animate-in fade-in duration-500">
+    <div className="overflow-x-auto rounded-3xl border border-slate-100 bg-white p-8 animate-in fade-in duration-500">
       <table className="w-full border-collapse min-w-[800px]">
         <thead>
           <tr className="border-b border-slate-100">
@@ -199,7 +199,7 @@ export function DashboardOverview({
                         {hasNoGoals ? (
                           <span className="h-1.5 w-1.5 rounded-full bg-slate-200" />
                         ) : status.isMet ? (
-                          <div className="h-6 w-6 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center shadow-sm">
+                          <div className="h-6 w-6 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center">
                             <Check size={14} strokeWidth={4} />
                           </div>
                         ) : status.isFuture ? (
@@ -248,7 +248,7 @@ export function DashboardOverview({
                                         m.isFuture
                                           ? "text-slate-300"
                                           : m.isMet
-                                          ? "bg-white text-emerald-600 shadow-sm border border-emerald-100/50"
+                                          ? "bg-white text-emerald-600 border border-emerald-100/50"
                                           : "text-slate-400"
                                       )}
                                     >

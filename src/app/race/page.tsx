@@ -162,12 +162,12 @@ export default function RacePage() {
 
   return (
     <Layout>
-      <div className="bg-white rounded-3xl p-8 border border-slate-100 shadow-sm animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <div className="bg-white rounded-3xl p-8 border border-slate-100 animate-in fade-in slide-in-from-bottom-4 duration-700">
         <header className="mb-12 flex flex-wrap items-center justify-between gap-8">
           <div>
             <h1 className="flex items-center gap-3 text-4xl font-black text-slate-800 tracking-tighter uppercase">
               <Trophy className="text-amber-500 w-10 h-10" />
-              THE RACE
+              Das Rennen
             </h1>
             <p className="text-slate-400 font-bold text-sm mt-2 uppercase tracking-widest">
               Wer dominiert die Rangliste?
@@ -178,7 +178,7 @@ export default function RacePage() {
             <button
               onClick={() => setFilterMyDisciplines(!filterMyDisciplines)}
               className={cn(
-                "px-5 py-2.5 rounded-xl text-sm font-black transition-all flex items-center gap-2 border shadow-sm",
+                "px-5 py-2.5 rounded-xl text-sm font-black transition-all flex items-center gap-2 border",
                 filterMyDisciplines
                   ? "bg-amber-50 text-amber-600 border-amber-100"
                   : "bg-white text-slate-500 border-slate-100 hover:bg-slate-50"
@@ -188,13 +188,13 @@ export default function RacePage() {
               {filterMyDisciplines ? "Meine Übungen" : "Alle Übungen"}
             </button>
 
-            <div className="flex rounded-xl bg-slate-100 p-1 shadow-inner">
+            <div className="flex rounded-xl bg-slate-100 p-1">
               <button
                 onClick={() => setDisplayMode("relative")}
                 className={cn(
                   "px-4 py-2 rounded-lg text-xs font-black transition-all",
                   displayMode === "relative"
-                    ? "bg-white text-slate-800 shadow-md"
+                    ? "bg-white text-slate-800"
                     : "text-slate-400 hover:text-slate-600"
                 )}
               >
@@ -205,7 +205,7 @@ export default function RacePage() {
                 className={cn(
                   "px-4 py-2 rounded-lg text-xs font-black transition-all",
                   displayMode === "absolute"
-                    ? "bg-white text-slate-800 shadow-md"
+                    ? "bg-white text-slate-800"
                     : "text-slate-400 hover:text-slate-600"
                 )}
               >
@@ -213,13 +213,13 @@ export default function RacePage() {
               </button>
             </div>
 
-            <div className="flex rounded-xl bg-slate-100 p-1 shadow-inner">
+            <div className="flex rounded-xl bg-slate-100 p-1">
               <button
                 onClick={() => setRaceMode("year")}
                 className={cn(
                   "px-6 py-2 rounded-lg text-sm font-black transition-all",
                   raceMode === "year"
-                    ? "bg-white text-slate-800 shadow-md"
+                    ? "bg-white text-slate-800"
                     : "text-slate-400 hover:text-slate-600"
                 )}
               >
@@ -230,7 +230,7 @@ export default function RacePage() {
                 className={cn(
                   "px-6 py-2 rounded-lg text-sm font-black transition-all",
                   raceMode === "month"
-                    ? "bg-white text-slate-800 shadow-md"
+                    ? "bg-white text-slate-800"
                     : "text-slate-400 hover:text-slate-600"
                 )}
               >
@@ -322,7 +322,7 @@ export default function RacePage() {
                     >
                       <div
                         className={cn(
-                          "absolute -top-12 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-[10px] font-black px-3 py-1.5 rounded-lg transition-all shadow-xl pointer-events-none whitespace-nowrap z-50",
+                          "absolute -top-12 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-[10px] font-black px-3 py-1.5 rounded-lg transition-all pointer-events-none whitespace-nowrap z-50",
                           isTooltip
                             ? "opacity-100 translate-y-0"
                             : "opacity-0 translate-y-1 group-hover/pacer:opacity-100 group-hover/pacer:translate-y-0"
@@ -381,7 +381,7 @@ export default function RacePage() {
                           );
                         }}
                         className={cn(
-                          "group/user relative w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-black transition-all hover:scale-110 active:scale-95 cursor-pointer shadow-md",
+                          "group/user relative w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-black transition-all hover:scale-110 active:scale-95 cursor-pointer",
                           isMe
                             ? "ring-4 ring-white outline outline-2 outline-slate-800"
                             : "ring-2 ring-white"
@@ -395,7 +395,7 @@ export default function RacePage() {
 
                         <div
                           className={cn(
-                            "absolute -top-16 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-[10px] font-bold px-4 py-2 rounded-2xl transition-all whitespace-nowrap z-50 pointer-events-none shadow-2xl border border-slate-700",
+                            "absolute -top-16 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-[10px] font-bold px-4 py-2 rounded-2xl transition-all whitespace-nowrap z-50 pointer-events-none border border-slate-700",
                             isTooltip
                               ? "opacity-100 scale-100"
                               : "opacity-0 scale-75 group-hover/user:opacity-100 group-hover/user:scale-100"
