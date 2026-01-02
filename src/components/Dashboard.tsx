@@ -56,7 +56,9 @@ export function Dashboard({
   const [displayMode, setDisplayMode] = useState<"relative" | "absolute">(
     "relative"
   );
-  const [activeTab, setActiveTab] = useState<"race" | "overview" | "log">("race");
+  const [activeTab, setActiveTab] = useState<"race" | "overview" | "log">(
+    "race"
+  );
 
   const [activeTooltip, setActiveTooltip] = useState<{
     id: string; // exercise + name or exercise + lvl
@@ -90,10 +92,10 @@ export function Dashboard({
   const pacerPercent = raceMode === "year" ? yearPacer : monthPacer;
 
   const LEVEL_COLORS = {
-    S: "#f43f5e", // Rose 500
-    M: "#22d3ee", // Cyan 400
+    S: "#babab9ff", // Rose 500
+    M: "#62d0e1ff", // Cyan 400
     L: "#fbbf24", // Amber 400
-    XL: "#6366f1", // Indigo 500
+    XL: "#b11797ff", // Indigo 500
   };
 
   const filteredStats = useMemo(() => {
@@ -417,7 +419,7 @@ export function Dashboard({
                               pacerPercent *
                               (displayMode === "absolute"
                                 ? row.catalog[lvl] *
-                                (raceMode === "year" ? 12 : 1)
+                                  (raceMode === "year" ? 12 : 1)
                                 : 100)
                             ).toFixed(0)}
                             {displayMode === "relative" ? "%" : ""}
