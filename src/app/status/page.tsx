@@ -284,7 +284,7 @@ export default function StatusPage() {
                   Vergangener Fortschritt
                 </h2>
                 <p className="text-slate-400 font-bold text-xs">
-                  Deine Historie aller Einträge
+                  Meine Historie aller Einträge
                 </p>
               </div>
             </div>

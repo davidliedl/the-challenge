@@ -39,7 +39,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
   };
 
   const navItems = [
-    { name: "DEIN STATUS", href: "/status", icon: UserCheck },
+    { name: "STATUS", href: "/status", icon: UserCheck },
     { name: "RENNEN", href: "/race", icon: Trophy },
     { name: "ÜBERBLICK", href: "/overview", icon: ListChecks },
   ];

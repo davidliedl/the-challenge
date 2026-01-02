@@ -533,7 +533,7 @@ export function Dashboard({
             <div className="mb-6 flex flex-wrap items-center justify-between gap-6">
               <h3 className="flex items-center gap-3 text-xl font-black text-slate-800 uppercase tracking-tighter">
                 <UserCheck className="text-amber-500" size={24} />
-                Dein Status
+                Mein Status
               </h3>
 
               <div className="flex rounded-xl bg-slate-100 p-1">
