@@ -19,35 +19,22 @@ export function UserGate({ onSelect }: { onSelect: (name: string) => void }) {
 
   if (mode === "landing") {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4">
-        <div className="max-w-md w-full bg-white rounded-3xl shadow-xl p-8 text-center space-y-8 animate-in fade-in zoom-in duration-500">
-          <div className="flex justify-center">
-            <div className="bg-slate-800 p-4 rounded-2xl shadow-lg">
-              <Trophy className="text-amber-500 w-12 h-12" />
-            </div>
-          </div>
-          <div>
-            <h1 className="text-3xl font-bold text-slate-800">
-              The Challenge 2026
-            </h1>
-            <p className="text-slate-500 mt-2">Bereit für deine Ziele?</p>
-          </div>
-          <div className="space-y-3">
-            <button
-              onClick={() => setMode("select")}
-              className="w-full py-4 bg-slate-800 text-white rounded-2xl font-bold text-lg flex items-center justify-center gap-2 hover:bg-slate-900 transition-all shadow-lg shadow-slate-200"
-            >
-              <LogIn size={20} />
-              Ich habe einen Account
-            </button>
-            <button
-              onClick={() => setMode("register")}
-              className="w-full py-4 bg-white text-slate-800 border-2 border-slate-100 rounded-2xl font-bold text-lg flex items-center justify-center gap-2 hover:border-slate-300 transition-all"
-            >
-              <UserPlus size={20} />
-              Neu registrieren
-            </button>
-          </div>
+      <div className="flex items-center justify-center p-4 w-full">
+        <div className="max-w-lg w-full space-y-4 animate-in fade-in zoom-in duration-500">
+          <button
+            onClick={() => setMode("select")}
+            className="w-full py-4 bg-slate-800 text-white rounded-[2rem] font-black text-xl flex items-center justify-center gap-3 hover:bg-slate-900 transition-all active:scale-95 border-4 border-slate-800"
+          >
+            <LogIn size={24} />
+            Ich habe einen Account
+          </button>
+          <button
+            onClick={() => setMode("register")}
+            className="w-full py-4 bg-white text-slate-800 border-4 border-slate-100 rounded-[2rem] font-black text-xl flex items-center justify-center gap-3 hover:border-slate-300 transition-all active:scale-95"
+          >
+            <UserPlus size={24} />
+            Neu registrieren
+          </button>
         </div>
       </div>
     );
@@ -55,8 +42,8 @@ export function UserGate({ onSelect }: { onSelect: (name: string) => void }) {
 
   if (mode === "select") {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4">
-        <div className="max-w-md w-full bg-white rounded-3xl shadow-xl p-8 space-y-6">
+      <div className="flex items-center justify-center p-4">
+        <div className="max-w-md w-full bg-white rounded-3xl border border-slate-200 p-8 space-y-6">
           <div className="flex items-center gap-3">
             <button
               onClick={() => setMode("landing")}
@@ -100,8 +87,8 @@ export function UserGate({ onSelect }: { onSelect: (name: string) => void }) {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
-      <div className="max-w-4xl w-full">
+    <div className="flex items-center justify-center p-4">
+      <div className="w-full">
         <div className="mb-4">
           <button
             onClick={() => setMode("landing")}

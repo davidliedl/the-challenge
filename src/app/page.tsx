@@ -1,25 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { api } from "~/trpc/react";
+import { useRouter } from "next/navigation";
 import { Layout } from "~/components/Layout";
-import { Dashboard } from "~/components/Dashboard";
-import { LogForm } from "~/components/LogForm";
-import { RegisterForm } from "~/components/RegisterForm";
-import { Trophy, LayoutDashboard, PenLine, UserPlus } from "lucide-react";
-import { clsx, type ClassValue } from "clsx";
-import { twMerge } from "tailwind-merge";
-
-function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
-}
-
 import { UserGate } from "~/components/UserGate";
+import { Trophy } from "lucide-react";
 
 export default function Home() {
-  const [activeTab, setActiveTab] = useState<"dashboard" | "log" | "register">(
-    "dashboard"
-  );
+  const router = useRouter();
   const [currentUser, setCurrentUser] = useState<string | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
 
@@ -27,126 +15,36 @@ export default function Home() {
     const savedUser = localStorage.getItem("push_challenge_user");
     if (savedUser) {
       setCurrentUser(savedUser);
+      router.push("/status");
     }
     setIsLoaded(true);
-  }, []);
-
-  const utils = api.useUtils();
-
-  useEffect(() => {
-    if (currentUser) {
-      void utils.achievement.getStats.invalidate();
-      void utils.user.getAll.invalidate();
-    }
-  }, [activeTab, utils, currentUser]);
+  }, [router]);
 
   const handleUserSelect = (name: string) => {
     setCurrentUser(name);
     localStorage.setItem("push_challenge_user", name);
-    setActiveTab("dashboard");
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem("push_challenge_user");
-    setCurrentUser(null);
+    router.push("/status");
   };
 
   if (!isLoaded) return null;
 
-  if (!currentUser) {
-    return (
-      <Layout>
-        <UserGate onSelect={handleUserSelect} />
-      </Layout>
-    );
-  }
-
   return (
     <Layout>
-      <div className="container mx-auto px-4 py-8 max-w-6xl">
-        <header className="mb-8 flex flex-wrap justify-between items-center bg-white p-4 rounded-2xl shadow-sm border border-slate-100 gap-4">
-          <h1 className="text-3xl font-bold text-slate-800 flex items-center gap-3">
-            <Trophy className="text-amber-500 w-8 h-8" />
-            The Challenge 2026
-          </h1>
-          <div className="flex items-center gap-4">
-            <div className="text-right">
-              <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest">
-                Aktiv
-              </p>
-              <p className="font-bold text-slate-800">{currentUser}</p>
-            </div>
-            <button
-              onClick={handleLogout}
-              className="px-4 py-2 bg-slate-100 text-slate-600 rounded-xl text-sm font-bold hover:bg-slate-200 transition-all"
-            >
-              Abmelden
-            </button>
+      <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-12">
+        <header className="text-center space-y-4">
+          <div className="inline-flex p-4 bg-amber-500 rounded-3xl animate-bounce transition-all">
+            <Trophy className="text-white w-12 h-12" />
           </div>
+          <h1 className="text-5xl font-black text-slate-800 tracking-tighter uppercase">
+            The Challenge <span className="text-amber-500">2026</span>
+          </h1>
+          <p className="text-slate-400 font-bold uppercase tracking-[0.2em] text-sm">
+            Push yourself to the next level
+          </p>
         </header>
 
-        <nav className="flex flex-wrap gap-2 mb-8 bg-white p-2 rounded-xl shadow-sm">
-          <button
-            onClick={() => setActiveTab("dashboard")}
-            className={cn(
-              "flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-medium transition-all",
-              activeTab === "dashboard"
-                ? "bg-slate-800 text-white shadow-md"
-                : "text-slate-600 hover:bg-slate-50"
-            )}
-          >
-            <LayoutDashboard size={20} />
-            Dashboard
-          </button>
-          <button
-            onClick={() => setActiveTab("log")}
-            className={cn(
-              "flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-medium transition-all",
-              activeTab === "log"
-                ? "bg-slate-800 text-white shadow-md"
-                : "text-slate-600 hover:bg-slate-50"
-            )}
-          >
-            <PenLine size={20} />
-            Fortschritt
-          </button>
-          <button
-            onClick={() => setActiveTab("register")}
-            className={cn(
-              "flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-medium transition-all",
-              activeTab === "register"
-                ? "bg-slate-800 text-white shadow-md"
-                : "text-slate-600 hover:bg-slate-50"
-            )}
-          >
-            <UserPlus size={20} />
-            Registrierung
-          </button>
-        </nav>
-
-        <div className="transition-all duration-300">
-          {activeTab === "dashboard" && (
-            <Dashboard
-              currentUser={currentUser}
-              setCurrentUser={handleUserSelect}
-            />
-          )}
-          {activeTab === "log" && (
-            <LogForm
-              currentUser={currentUser}
-              onSuccess={() => {
-                setActiveTab("dashboard");
-              }}
-            />
-          )}
-          {activeTab === "register" && (
-            <RegisterForm
-              currentUser={currentUser}
-              onSuccess={(name: string) => {
-                handleUserSelect(name);
-              }}
-            />
-          )}
+        <div className="w-full">
+          <UserGate onSelect={handleUserSelect} />
         </div>
       </div>
     </Layout>
