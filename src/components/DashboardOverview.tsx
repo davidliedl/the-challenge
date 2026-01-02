@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 import { Check, X, Minus, ChevronDown, ChevronUp } from "lucide-react";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
@@ -157,7 +157,7 @@ export function DashboardOverview({
             const isExpanded = expandedUserId === user.name;
 
             return (
-              <>
+              <Fragment key={user.name}>
                 <tr
                   key={user.name}
                   className={cn(
@@ -264,7 +264,7 @@ export function DashboardOverview({
                     </td>
                   </tr>
                 )}
-              </>
+              </Fragment>
             );
           })}
 
