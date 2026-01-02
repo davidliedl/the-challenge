@@ -111,27 +111,13 @@ export default function StatusPage() {
   return (
     <Layout>
       <div className="space-y-12">
-        {/* Profile Header */}
-        <section className="bg-white rounded-3xl p-8 border border-slate-100 shadow-sm">
-          <div className="flex flex-wrap items-center justify-between gap-6">
-            <div className="flex items-center gap-4">
-              <div className="w-16 h-16 bg-indigo-500 rounded-full flex items-center justify-center text-white text-2xl font-black shadow-lg shadow-indigo-100">
-                {currentUser
-                  .split(" ")
-                  .map((n) => n[0])
-                  .join("")
-                  .toUpperCase()
-                  .substring(0, 2)}
-              </div>
-              <div>
-                <h1 className="text-3xl font-black text-slate-800 tracking-tighter uppercase">
-                  {currentUser}
-                </h1>
-                <p className="text-slate-400 font-bold uppercase text-xs tracking-widest mt-1">
-                  Dein aktueller Fortschritt
-                </p>
-              </div>
-            </div>
+        {/* Exercise Goals Grid */}
+        <section className="space-y-6">
+          <div className="flex items-center justify-between">
+            <h2 className="flex items-center gap-3 text-2xl font-black text-slate-800 uppercase tracking-tighter">
+              <UserCheck className="text-indigo-500" size={28} />
+              Meine Disziplinen
+            </h2>
 
             <div className="flex rounded-xl bg-slate-100 p-1 shadow-inner">
               <button
@@ -158,14 +144,6 @@ export default function StatusPage() {
               </button>
             </div>
           </div>
-        </section>
-
-        {/* Exercise Goals Grid */}
-        <section className="space-y-6">
-          <h2 className="flex items-center gap-3 text-2xl font-black text-slate-800 uppercase tracking-tighter">
-            <UserCheck className="text-indigo-500" size={28} />
-            Deine Disziplinen
-          </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {user?.goals.map((g) => {
