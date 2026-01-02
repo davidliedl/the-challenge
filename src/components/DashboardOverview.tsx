@@ -144,7 +144,7 @@ export function DashboardOverview({
                 key={month}
                 className={cn(
                   "py-4 px-2 text-center font-black text-xs uppercase tracking-wider w-[60px]",
-                  i === currentMonthIndex ? "text-indigo-600" : "text-slate-400"
+                  i === currentMonthIndex ? "text-amber-600" : "text-slate-400"
                 )}
               >
                 {month}

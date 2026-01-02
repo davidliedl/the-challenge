@@ -262,7 +262,7 @@ export function Dashboard({
                   className={cn(
                     "px-4 py-2 rounded-xl text-sm font-bold transition-all flex items-center gap-2",
                     filterMyDisciplines
-                      ? "bg-indigo-50 text-indigo-600 border border-indigo-100"
+                      ? "bg-amber-50 text-amber-600 border border-amber-100"
                       : "bg-slate-50 text-slate-500 border border-slate-100 hover:bg-slate-100"
                   )}
                 >
@@ -532,7 +532,7 @@ export function Dashboard({
           <div className="rounded-3xl border border-slate-100 bg-white p-8 shadow-sm">
             <div className="mb-6 flex flex-wrap items-center justify-between gap-6">
               <h3 className="flex items-center gap-3 text-xl font-black text-slate-800 uppercase tracking-tighter">
-                <UserCheck className="text-indigo-500" size={24} />
+                <UserCheck className="text-amber-500" size={24} />
                 Dein Status
               </h3>
 
@@ -641,7 +641,7 @@ export function Dashboard({
                           <div
                             className={cn(
                               "h-full rounded-full transition-all duration-1000",
-                              p >= 100 ? "bg-emerald-500" : "bg-indigo-500"
+                              p >= 100 ? "bg-emerald-500" : "bg-amber-500"
                             )}
                             style={{
                               width: `${Math.min(p, 100)}%`,

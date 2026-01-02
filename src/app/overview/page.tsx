@@ -38,7 +38,7 @@ export default function OverviewPage() {
       <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
         <header className="bg-white rounded-3xl p-8 border border-slate-100 shadow-sm">
           <h1 className="flex items-center gap-3 text-3xl font-black text-slate-800 tracking-tighter uppercase">
-            <ListChecks className="text-indigo-500 w-8 h-8" />
+            <ListChecks className="text-amber-500 w-8 h-8" />
             ÜBERBLICK
           </h1>
           <p className="text-slate-400 font-bold text-sm mt-1 uppercase tracking-widest">

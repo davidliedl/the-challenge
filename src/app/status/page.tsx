@@ -115,7 +115,7 @@ export default function StatusPage() {
         <section className="space-y-6">
           <div className="flex items-center justify-between">
             <h2 className="flex items-center gap-3 text-2xl font-black text-slate-800 uppercase tracking-tighter">
-              <UserCheck className="text-indigo-500" size={28} />
+              <UserCheck className="text-amber-500" size={28} />
               Meine Disziplinen
             </h2>
 
@@ -223,7 +223,7 @@ export default function StatusPage() {
                       <div
                         className={cn(
                           "h-full rounded-full transition-all duration-1000",
-                          p >= 100 ? "bg-emerald-500" : "bg-indigo-500"
+                          p >= 100 ? "bg-emerald-500" : "bg-amber-500"
                         )}
                         style={{
                           width: `${Math.min(p, 100)}%`,
@@ -237,7 +237,7 @@ export default function StatusPage() {
                       <input
                         type="number"
                         placeholder="Wert"
-                        className="flex-1 bg-slate-50 border-none rounded-xl px-4 py-2 text-sm font-bold focus:ring-2 focus:ring-indigo-200 transition-all"
+                        className="flex-1 bg-slate-50 border-none rounded-xl px-4 py-2 text-sm font-bold focus:ring-2 focus:ring-amber-200 transition-all"
                         value={quickLogValue[g.exercise] || ""}
                         onChange={(e) =>
                           setQuickLogValue((prev) => ({
@@ -274,7 +274,7 @@ export default function StatusPage() {
             <div className="flex items-center gap-3">
               <ListChecks
                 className={cn(
-                  "text-indigo-500 transition-transform duration-300",
+                  "text-amber-500 transition-transform duration-300",
                   isLogOpen && "rotate-12"
                 )}
                 size={24}
@@ -323,7 +323,7 @@ export default function StatusPage() {
             <div className="flex items-center gap-3">
               <Plus
                 className={cn(
-                  "text-indigo-500 transition-transform duration-300",
+                  "text-amber-500 transition-transform duration-300",
                   isRegisterOpen && "rotate-45"
                 )}
                 size={24}

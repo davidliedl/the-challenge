@@ -180,7 +180,7 @@ export default function RacePage() {
               className={cn(
                 "px-5 py-2.5 rounded-xl text-sm font-black transition-all flex items-center gap-2 border shadow-sm",
                 filterMyDisciplines
-                  ? "bg-indigo-50 text-indigo-600 border-indigo-100"
+                  ? "bg-amber-50 text-amber-600 border-amber-100"
                   : "bg-white text-slate-500 border-slate-100 hover:bg-slate-50"
               )}
             >
@@ -240,11 +240,11 @@ export default function RacePage() {
           </div>
         </header>
 
-        <div className="space-y-16">
+        <div className="space-y-16 md:px-2">
           {filteredStats.map((row) => (
             <div key={row.exercise} className="group flex flex-col gap-4">
               <div className="flex justify-between items-end px-2">
-                <span className="text-xl font-black text-slate-800 tracking-tight group-hover:text-indigo-600 transition-colors uppercase">
+                <span className="text-xl font-black text-slate-800 tracking-tight group-hover:text-amber-600 transition-colors uppercase">
                   {row.exercise}
                 </span>
                 {displayMode === "absolute" && (
