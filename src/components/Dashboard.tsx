@@ -48,7 +48,7 @@ export function Dashboard({
   currentUser: string;
   setCurrentUser: (name: string) => void;
 }) {
-  const [raceMode, setRaceMode] = useState<"year" | "month">("year");
+  const [raceMode, setRaceMode] = useState<"year" | "month">("month");
   const [filterMyDisciplines, setFilterMyDisciplines] = useState(true);
   const [displayMode, setDisplayMode] = useState<"relative" | "absolute">(
     "relative"
@@ -468,10 +468,37 @@ export function Dashboard({
 
         {/* Existing Status detail */}
         <div className="rounded-3xl border border-slate-100 bg-white p-8 shadow-sm">
-          <h3 className="flex items-center gap-3 text-xl font-black text-slate-800 mb-6 uppercase tracking-tighter">
-            <UserCheck className="text-indigo-500" size={24} />
-            Dein Status
-          </h3>
+          <div className="mb-6 flex flex-wrap items-center justify-between gap-6">
+            <h3 className="flex items-center gap-3 text-xl font-black text-slate-800 uppercase tracking-tighter">
+              <UserCheck className="text-indigo-500" size={24} />
+              Dein Status
+            </h3>
+
+            <div className="flex rounded-xl bg-slate-100 p-1 shadow-inner">
+              <button
+                onClick={() => setRaceMode("year")}
+                className={cn(
+                  "px-4 py-1.5 rounded-lg text-xs font-black transition-all",
+                  raceMode === "year"
+                    ? "bg-white text-slate-800 shadow-md"
+                    : "text-slate-400 hover:text-slate-600"
+                )}
+              >
+                JAHR
+              </button>
+              <button
+                onClick={() => setRaceMode("month")}
+                className={cn(
+                  "px-4 py-1.5 rounded-lg text-xs font-black transition-all",
+                  raceMode === "month"
+                    ? "bg-white text-slate-800 shadow-md"
+                    : "text-slate-400 hover:text-slate-600"
+                )}
+              >
+                MONAT
+              </button>
+            </div>
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {stats
               ?.find((u) => u.name === currentUser)
@@ -543,7 +570,12 @@ export function Dashboard({
                         </span>
                         <span>ZIEL: {target.toFixed(0)}</span>
                       </div>
-                      <div className="h-4 bg-white rounded-full overflow-hidden p-1 border border-slate-200">
+                      <div className="h-4 bg-white rounded-full relative border border-slate-200 p-1 flex items-center">
+                        {/* Pacer Line */}
+                        <div
+                          className="absolute h-4 w-[2px] bg-slate-400/50 z-10 transition-all duration-1000"
+                          style={{ left: `${pacerPercent * 100}%` }}
+                        />
                         <div
                           className={cn(
                             "h-full rounded-full transition-all duration-1000",
