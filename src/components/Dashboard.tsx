@@ -4,6 +4,7 @@ import { useMemo, useState, useEffect } from "react";
 import { api } from "~/trpc/react";
 import { EXERCISE_CATALOG } from "~/constants";
 import { DashboardOverview } from "./DashboardOverview";
+import { ProgressLog } from "./ProgressLog";
 import {
   BarChart,
   Bar,
@@ -55,7 +56,7 @@ export function Dashboard({
   const [displayMode, setDisplayMode] = useState<"relative" | "absolute">(
     "relative"
   );
-  const [activeTab, setActiveTab] = useState<"race" | "overview">("race");
+  const [activeTab, setActiveTab] = useState<"race" | "overview" | "log">("race");
 
   const [activeTooltip, setActiveTooltip] = useState<{
     id: string; // exercise + name or exercise + lvl
@@ -211,10 +212,26 @@ export function Dashboard({
           <ListChecks size={18} />
           OVERVIEW
         </button>
+        <button
+          onClick={() => setActiveTab("log")}
+          className={cn(
+            "flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-black transition-all",
+            activeTab === "log"
+              ? "bg-white text-slate-800 shadow-sm"
+              : "text-slate-400 hover:text-slate-600"
+          )}
+        >
+          <CalendarDays size={18} />
+          FORTSCHRITT LOG
+        </button>
       </div>
 
       {activeTab === "overview" ? (
         <DashboardOverview users={stats} />
+      ) : activeTab === "log" ? (
+        stats?.find((u) => u.name === currentUser) ? (
+          <ProgressLog user={stats.find((u) => u.name === currentUser)!} />
+        ) : null
       ) : (
         <div className="grid grid-cols-1 gap-8">
           {/* Race View */}
@@ -400,7 +417,7 @@ export function Dashboard({
                               pacerPercent *
                               (displayMode === "absolute"
                                 ? row.catalog[lvl] *
-                                  (raceMode === "year" ? 12 : 1)
+                                (raceMode === "year" ? 12 : 1)
                                 : 100)
                             ).toFixed(0)}
                             {displayMode === "relative" ? "%" : ""}
