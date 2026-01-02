@@ -7,7 +7,14 @@ import { UserGate } from "~/components/UserGate";
 import { ProgressLog } from "~/components/ProgressLog";
 import { RegisterForm } from "~/components/RegisterForm";
 import { EXERCISE_CATALOG } from "~/constants";
-import { UserCheck, Plus, Check, Loader2 } from "lucide-react";
+import {
+  UserCheck,
+  Plus,
+  Check,
+  Loader2,
+  ChevronDown,
+  ListChecks,
+} from "lucide-react";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -30,6 +37,8 @@ export default function StatusPage() {
     {}
   );
   const [loggingId, setLoggingId] = useState<string | null>(null);
+  const [isRegisterOpen, setIsRegisterOpen] = useState(false);
+  const [isLogOpen, setIsLogOpen] = useState(false);
 
   const utils = api.useUtils();
   const { data: stats, isLoading } = api.achievement.getStats.useQuery();
@@ -278,30 +287,108 @@ export default function StatusPage() {
           </div>
         </section>
 
-        {/* Progress Log */}
-        {user && (
-          <section className="bg-white rounded-3xl p-8 border border-slate-100 shadow-sm">
-            <ProgressLog user={user} />
-          </section>
-        )}
+        {/* Progress Log Accordion */}
+        <section className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+          <button
+            onClick={() => setIsLogOpen(!isLogOpen)}
+            className="w-full px-8 py-6 flex items-center justify-between hover:bg-slate-50 transition-colors"
+          >
+            <div className="flex items-center gap-3">
+              <ListChecks
+                className={cn(
+                  "text-indigo-500 transition-transform duration-300",
+                  isLogOpen && "rotate-12"
+                )}
+                size={24}
+              />
+              <div className="text-left">
+                <h2 className="text-xl font-black text-slate-800 uppercase tracking-tighter">
+                  Vergangener Fortschritt
+                </h2>
+                <p className="text-slate-400 font-bold text-xs">
+                  Deine Historie aller Einträge
+                </p>
+              </div>
+            </div>
+            <div
+              className={cn(
+                "p-2 rounded-xl bg-slate-50 text-slate-400 transition-transform duration-300",
+                isLogOpen && "rotate-180"
+              )}
+            >
+              <ChevronDown size={20} />
+            </div>
+          </button>
 
-        {/* Add more goals / RegisterForm */}
-        <section className="bg-slate-800 rounded-3xl p-8 text-white shadow-2xl">
-          <div className="mb-8">
-            <h2 className="flex items-center gap-3 text-2xl font-black uppercase tracking-tighter">
-              <Plus className="text-amber-400" size={28} />
-              Neue Ziele setzen
-            </h2>
-            <p className="text-slate-400 font-bold mt-1">
-              Erweitere deine Challenge um neue Disziplinen.
-            </p>
+          <div
+            className={cn(
+              "grid transition-all duration-300 ease-in-out",
+              isLogOpen
+                ? "grid-rows-[1fr] opacity-100"
+                : "grid-rows-[0fr] opacity-0"
+            )}
+          >
+            <div className="overflow-hidden">
+              <div className="px-8 pb-8 pt-2">
+                {user && <ProgressLog user={user} />}
+              </div>
+            </div>
           </div>
-          <RegisterForm
-            currentUser={currentUser}
-            onSuccess={() => {
-              void utils.achievement.getStats.invalidate();
-            }}
-          />
+        </section>
+
+        {/* Add more goals / RegisterForm Accordion */}
+        <section className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+          <button
+            onClick={() => setIsRegisterOpen(!isRegisterOpen)}
+            className="w-full px-8 py-6 flex items-center justify-between hover:bg-slate-50 transition-colors"
+          >
+            <div className="flex items-center gap-3">
+              <Plus
+                className={cn(
+                  "text-indigo-500 transition-transform duration-300",
+                  isRegisterOpen && "rotate-45"
+                )}
+                size={24}
+              />
+              <div className="text-left">
+                <h2 className="text-xl font-black text-slate-800 uppercase tracking-tighter">
+                  Neue Ziele setzen
+                </h2>
+                <p className="text-slate-400 font-bold text-xs">
+                  Erweitere deine Challenge um neue Disziplinen.
+                </p>
+              </div>
+            </div>
+            <div
+              className={cn(
+                "p-2 rounded-xl bg-slate-50 text-slate-400 transition-transform duration-300",
+                isRegisterOpen && "rotate-180"
+              )}
+            >
+              <ChevronDown size={20} />
+            </div>
+          </button>
+
+          <div
+            className={cn(
+              "grid transition-all duration-300 ease-in-out",
+              isRegisterOpen
+                ? "grid-rows-[1fr] opacity-100"
+                : "grid-rows-[0fr] opacity-0"
+            )}
+          >
+            <div className="overflow-hidden">
+              <div className="px-8 pb-8 pt-2">
+                <RegisterForm
+                  currentUser={currentUser}
+                  onSuccess={() => {
+                    void utils.achievement.getStats.invalidate();
+                    setIsRegisterOpen(false);
+                  }}
+                />
+              </div>
+            </div>
+          </div>
         </section>
       </div>
     </Layout>

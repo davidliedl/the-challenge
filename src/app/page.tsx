@@ -36,14 +36,14 @@ export default function Home() {
             <Trophy className="text-white w-12 h-12" />
           </div>
           <h1 className="text-5xl font-black text-slate-800 tracking-tighter uppercase">
-            The Challenge <span className="text-indigo-600">2026</span>
+            The Challenge <span className="text-amber-500">2026</span>
           </h1>
           <p className="text-slate-400 font-bold uppercase tracking-[0.2em] text-sm">
             Push yourself to the next level
           </p>
         </header>
 
-        <div className="w-full max-w-md">
+        <div className="w-full">
           <UserGate onSelect={handleUserSelect} />
         </div>
       </div>

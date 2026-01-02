@@ -76,10 +76,7 @@ export function RegisterForm({
   };
 
   return (
-    <div className="max-w-4xl mx-auto bg-white p-8 rounded-2xl shadow-sm border border-slate-100">
-      <h2 className="text-2xl font-bold mb-6 text-center text-slate-800">
-        Ziele registrieren
-      </h2>
+    <div className="w-full">
       <form onSubmit={handleSubmit} className="space-y-8">
         {!currentUser && (
           <div className="max-w-md mx-auto space-y-3">
