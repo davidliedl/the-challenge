@@ -19,7 +19,7 @@ export function UserGate({ onSelect }: { onSelect: (name: string) => void }) {
 
   if (mode === "landing") {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4">
+      <div className="flex items-center justify-center p-4">
         <div className="max-w-md w-full bg-white rounded-3xl shadow-xl p-8 text-center space-y-8 animate-in fade-in zoom-in duration-500">
           <div className="flex justify-center">
             <div className="bg-slate-800 p-4 rounded-2xl shadow-lg">
@@ -55,7 +55,7 @@ export function UserGate({ onSelect }: { onSelect: (name: string) => void }) {
 
   if (mode === "select") {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4">
+      <div className="flex items-center justify-center p-4">
         <div className="max-w-md w-full bg-white rounded-3xl shadow-xl p-8 space-y-6">
           <div className="flex items-center gap-3">
             <button
@@ -100,7 +100,7 @@ export function UserGate({ onSelect }: { onSelect: (name: string) => void }) {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
+    <div className="flex items-center justify-center p-4">
       <div className="max-w-4xl w-full">
         <div className="mb-4">
           <button
