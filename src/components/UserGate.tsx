@@ -20,19 +20,19 @@ export function UserGate({ onSelect }: { onSelect: (name: string) => void }) {
   if (mode === "landing") {
     return (
       <div className="flex items-center justify-center p-4 w-full">
-        <div className="max-w-xl w-full space-y-6 animate-in fade-in zoom-in duration-500">
+        <div className="max-w-lg w-full space-y-4 animate-in fade-in zoom-in duration-500">
           <button
             onClick={() => setMode("select")}
-            className="w-full py-6 bg-slate-800 text-white rounded-[2rem] font-black text-2xl flex items-center justify-center gap-4 hover:bg-slate-900 transition-all shadow-2xl shadow-slate-200 active:scale-95 border-4 border-slate-800"
+            className="w-full py-4 bg-slate-800 text-white rounded-[2rem] font-black text-xl flex items-center justify-center gap-3 hover:bg-slate-900 transition-all shadow-xl shadow-slate-200 active:scale-95 border-4 border-slate-800"
           >
-            <LogIn size={28} />
+            <LogIn size={24} />
             Ich habe einen Account
           </button>
           <button
             onClick={() => setMode("register")}
-            className="w-full py-6 bg-white text-slate-800 border-4 border-slate-100 rounded-[2rem] font-black text-2xl flex items-center justify-center gap-4 hover:border-slate-300 transition-all active:scale-95 shadow-sm"
+            className="w-full py-4 bg-white text-slate-800 border-4 border-slate-100 rounded-[2rem] font-black text-xl flex items-center justify-center gap-3 hover:border-slate-300 transition-all active:scale-95 shadow-sm"
           >
-            <UserPlus size={28} />
+            <UserPlus size={24} />
             Neu registrieren
           </button>
         </div>

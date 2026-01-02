@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState, useEffect } from "react";
+import { useLocalStorage } from "usehooks-ts";
 import { api } from "~/trpc/react";
 import { Layout } from "~/components/Layout";
 import { UserGate } from "~/components/UserGate";
@@ -23,11 +24,18 @@ const LEVEL_COLORS = {
 export default function RacePage() {
   const [currentUser, setCurrentUser] = useState<string | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
-  const [raceMode, setRaceMode] = useState<"year" | "month">("month");
-  const [filterMyDisciplines, setFilterMyDisciplines] = useState(true);
-  const [displayMode, setDisplayMode] = useState<"relative" | "absolute">(
-    "relative"
+  const [raceMode, setRaceMode] = useLocalStorage<"year" | "month">(
+    "push_race_mode",
+    "month"
   );
+  const [filterMyDisciplines, setFilterMyDisciplines] = useLocalStorage(
+    "push_race_filter_my_disciplines",
+    true
+  );
+  const [displayMode, setDisplayMode] = useLocalStorage<
+    "relative" | "absolute"
+  >("push_race_display_mode", "relative");
+
   const [activeTooltip, setActiveTooltip] = useState<{
     id: string;
     type: "user" | "pacer";

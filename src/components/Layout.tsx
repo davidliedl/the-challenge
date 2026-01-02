@@ -47,42 +47,17 @@ export function Layout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 font-sans antialiased pb-20">
       {currentUser && (
-        <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-100 shadow-sm">
-          <div className="container mx-auto px-4 py-3 flex items-center justify-between gap-4">
-            <div className="flex items-center gap-6">
-              <Link href="/status" className="flex items-center gap-2">
-                <div className="bg-amber-500 p-1.5 rounded-full shadow-sm">
-                  <Trophy className="text-white w-5 h-5" />
-                </div>
-                <span className="font-black text-xl tracking-tighter text-slate-800 hidden sm:block">
-                  PUSH
-                </span>
-              </Link>
-
-              <nav className="flex items-center gap-1">
-                {navItems.map((item) => {
-                  const Icon = item.icon;
-                  const isActive = pathname === item.href;
-                  return (
-                    <Link
-                      key={item.name}
-                      href={item.href}
-                      className={cn(
-                        "flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-black transition-all",
-                        isActive
-                          ? "bg-slate-800 text-white shadow-md shadow-slate-200"
-                          : "text-slate-500 hover:bg-slate-50 hover:text-slate-800"
-                      )}
-                    >
-                      <Icon size={18} />
-                      <span className="hidden md:block">{item.name}</span>
-                    </Link>
-                  );
-                })}
-              </nav>
+        <div className="container mx-auto px-4 pt-6 space-y-4 max-w-6xl">
+          {/* Top Row: Title & User */}
+          <header className="bg-white rounded-3xl p-4 px-6 shadow-sm border border-slate-100 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Trophy className="text-amber-500 w-6 h-6" />
+              <h1 className="text-xl font-black text-slate-800 tracking-tight">
+                The Challenge 2026
+              </h1>
             </div>
 
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-6">
               <div className="text-right hidden xs:block">
                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">
                   AKTIV
@@ -93,16 +68,40 @@ export function Layout({ children }: { children: React.ReactNode }) {
               </div>
               <button
                 onClick={handleLogout}
-                className="p-2 bg-slate-100 text-slate-600 rounded-xl hover:bg-slate-200 transition-all"
-                title="Abmelden"
+                className="px-4 py-2 bg-slate-50 text-slate-600 text-xs font-bold rounded-xl hover:bg-slate-100 transition-all border border-slate-100"
               >
-                <LogOut size={18} />
+                Abmelden
               </button>
             </div>
-          </div>
-        </header>
+          </header>
+
+          {/* Bottom Row: Navigation */}
+          <nav className="bg-white rounded-3xl p-2 shadow-sm border border-slate-100 grid grid-cols-3 gap-2">
+            {navItems.map((item) => {
+              const Icon = item.icon;
+              const isActive = pathname === item.href;
+              return (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  className={cn(
+                    "flex items-center justify-center gap-3 px-4 py-3 rounded-2xl transition-all",
+                    isActive
+                      ? "bg-slate-800 text-white shadow-md"
+                      : "text-slate-500 hover:bg-slate-50 hover:text-slate-800"
+                  )}
+                >
+                  <Icon size={20} />
+                  <span className="font-bold text-sm hidden sm:block">
+                    {item.name}
+                  </span>
+                </Link>
+              );
+            })}
+          </nav>
+        </div>
       )}
-      <main className="container mx-auto px-4 py-8 max-w-7xl">{children}</main>
+      <main className="container mx-auto px-4 py-8 max-w-6xl">{children}</main>
     </div>
   );
 }

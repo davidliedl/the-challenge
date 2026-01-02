@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState, useEffect } from "react";
+import { useLocalStorage } from "usehooks-ts";
 import { api } from "~/trpc/react";
 import { EXERCISE_CATALOG } from "~/constants";
 import { DashboardOverview } from "./DashboardOverview";
@@ -51,11 +52,17 @@ export function Dashboard({
   currentUser: string;
   setCurrentUser: (name: string) => void;
 }) {
-  const [raceMode, setRaceMode] = useState<"year" | "month">("month");
-  const [filterMyDisciplines, setFilterMyDisciplines] = useState(true);
-  const [displayMode, setDisplayMode] = useState<"relative" | "absolute">(
-    "relative"
+  const [raceMode, setRaceMode] = useLocalStorage<"year" | "month">(
+    "push_race_mode",
+    "month"
   );
+  const [filterMyDisciplines, setFilterMyDisciplines] = useLocalStorage(
+    "push_race_filter_my_disciplines",
+    true
+  );
+  const [displayMode, setDisplayMode] = useLocalStorage<
+    "relative" | "absolute"
+  >("push_race_display_mode", "relative");
   const [activeTab, setActiveTab] = useState<"race" | "overview" | "log">(
     "race"
   );
