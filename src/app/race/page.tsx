@@ -355,71 +355,117 @@ export default function RacePage() {
                 })}
 
                 {/* User Avatars */}
-                {row.users.map((u) => {
-                  const isMe = u.name === currentUser;
-                  const pos =
-                    displayMode === "relative"
-                      ? (u.progress / VIEW_MAX_PERCENT) * 100
-                      : (u.absolute / row.maxAbsolute) * 100;
-                  const id = `${row.exercise}-${u.name}`;
-                  const isTooltip = activeTooltip?.id === id;
+                {(() => {
+                  // Group users by position to handle overlaps
+                  const usersWithPos = row.users.map((u) => {
+                    const pos =
+                      displayMode === "relative"
+                        ? (u.progress / VIEW_MAX_PERCENT) * 100
+                        : (u.absolute / row.maxAbsolute) * 100;
+                    return { ...u, pos };
+                  });
 
-                  return (
-                    <div
-                      key={u.name}
-                      className={cn(
-                        "absolute -translate-x-1/2 transition-all duration-1000 ease-out",
-                        isMe ? "z-30" : "z-20"
-                      )}
-                      style={{ left: `${Math.min(pos, 98)}%` }}
-                    >
+                  const groups = new Map<string, typeof usersWithPos>();
+                  usersWithPos.forEach((u) => {
+                    // Use 2 decimal places for grouping key to catch practically identical positions
+                    const key = u.pos.toFixed(2);
+                    if (!groups.has(key)) groups.set(key, []);
+                    groups.get(key)!.push(u);
+                  });
+
+                  return Array.from(groups.values()).map((group) => {
+                    // If current user is in this group, use them as the primary visual
+                    // otherwise just take the first one
+                    const primaryUser =
+                      group.find((u) => u.name === currentUser) || group[0];
+                    const isMeInGroup = group.some(
+                      (u) => u.name === currentUser
+                    );
+                    const groupSize = group.length;
+
+                    // Position comes from the group key effectively, or just the first user's pos
+                    const pos = group[0].pos;
+                    const id = `${row.exercise}-group-${pos.toFixed(2)}`;
+                    const isTooltip = activeTooltip?.id === id;
+
+                    return (
                       <div
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setActiveTooltip(
-                            isTooltip ? null : { id, type: "user" }
-                          );
-                        }}
+                        key={id}
                         className={cn(
-                          "group/user relative w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-black transition-all hover:scale-110 active:scale-95 cursor-pointer",
-                          isMe
-                            ? "ring-4 ring-white outline outline-2 outline-slate-800"
-                            : "ring-2 ring-white"
+                          "absolute -translate-x-1/2 transition-all duration-1000 ease-out",
+                          isMeInGroup ? "z-30" : "z-20"
                         )}
-                        style={{
-                          backgroundColor: LEVEL_COLORS[u.level],
-                          color: "white",
-                        }}
+                        style={{ left: `${Math.min(pos, 98)}%` }}
                       >
-                        {u.initials}
-
                         <div
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setActiveTooltip(
+                              isTooltip ? null : { id, type: "user" }
+                            );
+                          }}
                           className={cn(
-                            "absolute -top-16 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-[10px] font-bold px-4 py-2 rounded-2xl transition-all whitespace-nowrap z-50 pointer-events-none border border-slate-700",
-                            isTooltip
-                              ? "opacity-100 scale-100"
-                              : "opacity-0 scale-75 group-hover/user:opacity-100 group-hover/user:scale-100"
+                            "group/user relative w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-black transition-all hover:scale-110 active:scale-95 cursor-pointer",
+                            isMeInGroup
+                              ? "ring-4 ring-white outline outline-2 outline-slate-800"
+                              : "ring-2 ring-white"
                           )}
+                          style={{
+                            backgroundColor: LEVEL_COLORS[primaryUser.level],
+                            color: "white",
+                          }}
                         >
-                          <div className="flex items-center gap-2 mb-1">
-                            <span
-                              className="w-2 h-2 rounded-full"
-                              style={{ backgroundColor: LEVEL_COLORS[u.level] }}
-                            />
-                            <p className="font-black text-xs">
-                              {u.name} ({u.level})
-                            </p>
+                          {primaryUser.initials}
+
+                          {/* Group Indicator (if more than 1 user) */}
+                          {groupSize > 1 && (
+                            <div className="absolute -top-1 -right-1 w-4 h-4 bg-slate-800 text-white flex items-center justify-center text-[8px] rounded-full ring-2 ring-white">
+                              {groupSize}
+                            </div>
+                          )}
+
+                          <div
+                            className={cn(
+                              "absolute bottom-full mb-3 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-[10px] font-bold px-4 py-3 rounded-2xl transition-all whitespace-nowrap z-50 pointer-events-none border border-slate-700 flex flex-col gap-2 min-w-[120px]",
+                              isTooltip
+                                ? "opacity-100 scale-100"
+                                : "opacity-0 scale-75 group-hover/user:opacity-100 group-hover/user:scale-100"
+                            )}
+                          >
+                            {group.map((u, idx) => (
+                              <div
+                                key={u.name}
+                                className={cn(
+                                  "flex flex-col gap-0.5",
+                                  idx !== group.length - 1 &&
+                                  "border-b border-slate-700 pb-2"
+                                )}
+                              >
+                                <div className="flex items-center gap-2">
+                                  <span
+                                    className="w-2 h-2 rounded-full"
+                                    style={{
+                                      backgroundColor: LEVEL_COLORS[u.level],
+                                    }}
+                                  />
+                                  <p className="font-black text-xs">
+                                    {u.name} {u.name === currentUser && "(Ich)"}
+                                  </p>
+                                </div>
+                                <p className="text-slate-400 font-bold pl-4">
+                                  {u.progress.toFixed(1)}% |{" "}
+                                  {u.absolute.toFixed(0)} {u.unit}
+                                </p>
+                              </div>
+                            ))}
+
+                            <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-800" />
                           </div>
-                          <p className="text-slate-400 font-bold">
-                            {u.progress.toFixed(1)}% | {u.absolute.toFixed(0)}{" "}
-                            {u.unit}
-                          </p>
-                          <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-800" />
                         </div>
                       </div>
-                    </div>
-                  );
-                })}
+                    );
+                  });
+                })()}
               </div>
             </div>
           ))}
