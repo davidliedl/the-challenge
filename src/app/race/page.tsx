@@ -377,14 +377,14 @@ export default function RacePage() {
                     // If current user is in this group, use them as the primary visual
                     // otherwise just take the first one
                     const primaryUser =
-                      group.find((u) => u.name === currentUser) || group[0];
+                      group.find((u) => u.name === currentUser) || group[0]!;
                     const isMeInGroup = group.some(
                       (u) => u.name === currentUser
                     );
                     const groupSize = group.length;
 
                     // Position comes from the group key effectively, or just the first user's pos
-                    const pos = group[0].pos;
+                    const pos = group[0]!.pos;
                     const id = `${row.exercise}-group-${pos.toFixed(2)}`;
                     const isTooltip = activeTooltip?.id === id;
 
