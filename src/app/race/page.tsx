@@ -472,8 +472,18 @@ export default function RacePage() {
                           <div
                             onClick={(e) => {
                               e.stopPropagation();
+                              const rect = e.currentTarget.getBoundingClientRect();
                               setActiveTooltip(
-                                isTooltip ? null : { id, type: "user" }
+                                isTooltip
+                                  ? null
+                                  : {
+                                    id,
+                                    type: "user",
+                                    x: rect.left + rect.width / 2,
+                                    y: rect.top,
+                                    alignment,
+                                    data: { group, primaryUser, currentUser },
+                                  }
                               );
                             }}
                             className={cn(
