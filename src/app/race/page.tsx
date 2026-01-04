@@ -417,11 +417,8 @@ export default function RacePage() {
                               : "#1e293b",
                         }}
                       />
-                    );
-                  })}
-
-
-                  {/* User Avatars */}
+                    )
+                  })}                  {/* User Avatars */}
                   {(() => {
                     // Group users by position to handle overlaps
                     const usersWithPos = row.users.map((u) => {
