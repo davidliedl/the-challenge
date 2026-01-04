@@ -248,7 +248,7 @@ export default function RacePage() {
                   {row.exercise}
                 </span>
                 {displayMode === "absolute" && (
-                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest bg-slate-50 px-3 py-1 rounded-full border border-slate-100">
+                  <span className="hidden sm:inline-block text-[10px] font-black text-slate-400 uppercase tracking-widest bg-slate-50 px-3 py-1 rounded-full border border-slate-100">
                     Max: {row.maxAbsolute} {row.catalog.unit}
                   </span>
                 )}
@@ -273,15 +273,57 @@ export default function RacePage() {
                     const target =
                       row.catalog[lvl] * (raceMode === "year" ? 12 : 1);
                     const pos = (target / row.maxAbsolute) * 100;
+
+                    const id = `${row.exercise}-line-${lvl}`;
+                    const isTooltip = activeTooltip?.id === id;
+
+                    // Calculate tooltip alignment based on position
+                    let alignment: "left" | "center" | "right" = "center";
+                    if (pos < 20) alignment = "left";
+                    else if (pos > 80) alignment = "right";
+
                     return (
                       <div
                         key={lvl}
-                        className="absolute top-0 bottom-0 border-l-[3px] border-dotted border-slate-200 z-0 ring-2 ring-white"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setActiveTooltip(
+                            isTooltip ? null : { id, type: "pacer" }
+                          );
+                        }}
+                        className="group/line absolute top-0 bottom-0 border-l-[3px] border-dotted border-slate-200 z-0 ring-2 ring-white cursor-pointer hover:border-slate-400 transition-colors"
                         style={{ left: `${pos}%` }}
                       >
                         <span className="absolute -top-7 left-0 -translate-x-1/2 text-[10px] font-black text-slate-400 bg-white px-1 font-sans">
                           {lvl}
                         </span>
+
+                        {/* Tooltip for Package Line */}
+                        <div
+                          className={cn(
+                            "absolute top-8 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-[10px] font-bold px-3 py-1.5 rounded-lg transition-all pointer-events-none whitespace-nowrap z-50",
+                            isTooltip
+                              ? "opacity-100 translate-y-0"
+                              : "opacity-0 translate-y-1 group-hover/line:opacity-100 group-hover/line:translate-y-0",
+                            // Conditional Alignment
+                            alignment === "center" && "left-0 -translate-x-1/2",
+                            alignment === "left" && "left-0 translate-x-3",
+                            alignment === "right" && "right-0 -translate-x-3"
+                          )}
+                        >
+                          {lvl}: {target.toFixed(0)} {row.catalog.unit}
+                          <div
+                            className={cn(
+                              "absolute bottom-full left-1/2 -translate-x-1/2 border-4 border-transparent border-b-slate-800",
+                              alignment === "center" &&
+                              "left-1/2 -translate-x-1/2",
+                              alignment === "left" &&
+                              "left-4 translate-x-[-50%]", // Adjust arrow to point to line
+                              alignment === "right" &&
+                              "right-4 translate-x-[50%]"
+                            )}
+                          />
+                        </div>
                       </div>
                     );
                   })
@@ -440,11 +482,11 @@ export default function RacePage() {
                                 : "opacity-0 scale-75 group-hover/user:opacity-100 group-hover/user:scale-100",
                               // Conditional Alignment
                               alignment === "center" &&
-                                "left-1/2 -translate-x-1/2 origin-bottom",
+                              "left-1/2 -translate-x-1/2 origin-bottom",
                               alignment === "left" &&
-                                "left-0 origin-bottom-left",
+                              "left-0 origin-bottom-left",
                               alignment === "right" &&
-                                "right-0 origin-bottom-right"
+                              "right-0 origin-bottom-right"
                             )}
                           >
                             {group.map((u, idx) => (
@@ -453,7 +495,7 @@ export default function RacePage() {
                                 className={cn(
                                   "flex flex-col gap-0.5",
                                   idx !== group.length - 1 &&
-                                    "border-b border-slate-700 pb-2"
+                                  "border-b border-slate-700 pb-2"
                                 )}
                               >
                                 <div className="flex items-center gap-2">
@@ -478,7 +520,7 @@ export default function RacePage() {
                               className={cn(
                                 "absolute top-full border-4 border-transparent border-t-slate-800",
                                 alignment === "center" &&
-                                  "left-1/2 -translate-x-1/2",
+                                "left-1/2 -translate-x-1/2",
                                 alignment === "left" && "left-4",
                                 alignment === "right" && "right-4"
                               )}
