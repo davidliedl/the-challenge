@@ -220,7 +220,7 @@ export default function RacePage() {
               <input
                 type="range"
                 min="1"
-                max="8"
+                max="15"
                 step="0.1"
                 value={zoomLevel}
                 onChange={(e) => setZoomLevel(parseFloat(e.target.value))}
