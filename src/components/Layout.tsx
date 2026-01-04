@@ -58,7 +58,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
             </div>
 
             <div className="flex items-center gap-6">
-              <div className="text-right hidden xs:block">
+              <div className="text-right">
                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">
                   AKTIV
                 </p>
