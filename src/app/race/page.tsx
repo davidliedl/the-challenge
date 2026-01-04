@@ -6,7 +6,7 @@ import { api } from "~/trpc/react";
 import { Layout } from "~/components/Layout";
 import { UserGate } from "~/components/UserGate";
 import { EXERCISE_CATALOG } from "~/constants";
-import { Trophy, Dumbbell } from "lucide-react";
+import { Trophy, Dumbbell, ZoomIn } from "lucide-react";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -35,6 +35,8 @@ export default function RacePage() {
   const [displayMode, setDisplayMode] = useLocalStorage<
     "relative" | "absolute"
   >("push_race_display_mode", "relative");
+
+  const [zoomLevel, setZoomLevel] = useState(1);
 
   const [activeTooltip, setActiveTooltip] = useState<{
     id: string;
@@ -188,6 +190,23 @@ export default function RacePage() {
               {filterMyDisciplines ? "Meine Übungen" : "Alle Übungen"}
             </button>
 
+            {/* Zoom Control */}
+            <div className="flex items-center gap-2 bg-slate-50 border border-slate-100 rounded-xl px-4 py-2 h-[42px]">
+              <ZoomIn size={16} className="text-slate-400" />
+              <input
+                type="range"
+                min="1"
+                max="5"
+                step="0.1"
+                value={zoomLevel}
+                onChange={(e) => setZoomLevel(parseFloat(e.target.value))}
+                className="w-24 accent-amber-500 cursor-pointer h-1.5 bg-slate-200 rounded-lg appearance-none"
+              />
+              <span className="text-xs font-bold text-slate-500 w-8 text-right font-mono">
+                {zoomLevel.toFixed(1)}x
+              </span>
+            </div>
+
             <div className="flex rounded-xl bg-slate-100 p-1">
               <button
                 onClick={() => setDisplayMode("relative")}
@@ -254,33 +273,99 @@ export default function RacePage() {
                 )}
               </div>
 
-              <div className="relative h-20 flex items-center rounded-3xl px-8">
-                {/* Track line */}
-                <div className="absolute inset-x-0 h-[6px] bg-slate-100 rounded-full" />
+              <div className="w-full overflow-x-auto pb-4 -mb-4 px-2">
+                <div
+                  className="relative h-20 flex items-center rounded-3xl px-8 transition-all duration-300 ease-out"
+                  style={{ width: `${zoomLevel * 100}%`, minWidth: "100%" }}
+                >
+                  {/* Track line */}
+                  <div className="absolute inset-x-0 h-[6px] bg-slate-100 rounded-full" />
 
-                {/* Vertical labels/lines */}
-                {displayMode === "relative" ? (
-                  <div
-                    className="absolute top-0 bottom-0 border-l-[3px] border-dotted border-slate-300 z-0 ring-4 ring-white"
-                    style={{ left: `${(100 / VIEW_MAX_PERCENT) * 100}%` }}
-                  >
-                    <span className="absolute -bottom-6 left-0 -translate-x-1/2 text-[9px] font-black text-slate-400 uppercase tracking-widest bg-white px-1 font-sans">
-                      Target
-                    </span>
-                  </div>
-                ) : (
-                  (["S", "M", "L", "XL"] as const).map((lvl) => {
-                    const target =
-                      row.catalog[lvl] * (raceMode === "year" ? 12 : 1);
-                    const pos = (target / row.maxAbsolute) * 100;
+                  {/* Vertical labels/lines */}
+                  {displayMode === "relative" ? (
+                    <div
+                      className="absolute top-0 bottom-0 border-l-[3px] border-dotted border-slate-300 z-0 ring-4 ring-white"
+                      style={{ left: `${(100 / VIEW_MAX_PERCENT) * 100}%` }}
+                    >
+                      <span className="absolute -bottom-6 left-0 -translate-x-1/2 text-[9px] font-black text-slate-400 uppercase tracking-widest bg-white px-1 font-sans">
+                        Target
+                      </span>
+                    </div>
+                  ) : (
+                    (["S", "M", "L", "XL"] as const).map((lvl) => {
+                      const target =
+                        row.catalog[lvl] * (raceMode === "year" ? 12 : 1);
+                      const pos = (target / row.maxAbsolute) * 100;
 
-                    const id = `${row.exercise}-line-${lvl}`;
+                      const id = `${row.exercise}-line-${lvl}`;
+                      const isTooltip = activeTooltip?.id === id;
+
+                      // Calculate tooltip alignment based on position
+                      let alignment: "left" | "center" | "right" = "center";
+                      if (pos < 20) alignment = "left";
+                      else if (pos > 80) alignment = "right";
+
+                      return (
+                        <div
+                          key={lvl}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setActiveTooltip(
+                              isTooltip ? null : { id, type: "pacer" }
+                            );
+                          }}
+                          className="group/line absolute top-0 bottom-0 border-l-[3px] border-dotted border-slate-200 z-0 ring-2 ring-white cursor-pointer hover:border-slate-400 transition-colors"
+                          style={{ left: `${pos}%` }}
+                        >
+                          <span className="absolute -top-7 left-0 -translate-x-1/2 text-[10px] font-black text-slate-400 bg-white px-1 font-sans">
+                            {lvl}
+                          </span>
+
+                          {/* Tooltip for Package Line */}
+                          <div
+                            className={cn(
+                              "absolute top-8 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-[10px] font-bold px-3 py-1.5 rounded-lg transition-all pointer-events-none whitespace-nowrap z-50",
+                              isTooltip
+                                ? "opacity-100 translate-y-0"
+                                : "opacity-0 translate-y-1 group-hover/line:opacity-100 group-hover/line:translate-y-0",
+                              // Conditional Alignment
+                              alignment === "center" && "left-0 -translate-x-1/2",
+                              alignment === "left" && "left-0 translate-x-3",
+                              alignment === "right" && "right-0 -translate-x-3"
+                            )}
+                          >
+                            {lvl}: {target.toFixed(0)} {row.catalog.unit}
+                            <div
+                              className={cn(
+                                "absolute bottom-full left-1/2 -translate-x-1/2 border-4 border-transparent border-b-slate-800",
+                                alignment === "center" &&
+                                "left-1/2 -translate-x-1/2",
+                                alignment === "left" &&
+                                "left-4 translate-x-[-50%]", // Adjust arrow to point to line
+                                alignment === "right" &&
+                                "right-4 translate-x-[50%]"
+                              )}
+                            />
+                          </div>
+                        </div>
+                      );
+                    })
+                  )}
+
+                  {/* Pacer indicators */}
+                  {(["S", "M", "L", "XL"] as const).map((lvl) => {
+                    let pos = 0;
+                    if (displayMode === "relative") {
+                      pos = ((pacerPercent * 100) / VIEW_MAX_PERCENT) * 100;
+                      if (lvl !== "S") return null;
+                    } else {
+                      const target =
+                        row.catalog[lvl] * (raceMode === "year" ? 12 : 1);
+                      pos = ((target * pacerPercent) / row.maxAbsolute) * 100;
+                    }
+
+                    const id = `${row.exercise}-${lvl}`;
                     const isTooltip = activeTooltip?.id === id;
-
-                    // Calculate tooltip alignment based on position
-                    let alignment: "left" | "center" | "right" = "center";
-                    if (pos < 20) alignment = "left";
-                    else if (pos > 80) alignment = "right";
 
                     return (
                       <div
@@ -291,259 +376,197 @@ export default function RacePage() {
                             isTooltip ? null : { id, type: "pacer" }
                           );
                         }}
-                        className="group/line absolute top-0 bottom-0 border-l-[3px] border-dotted border-slate-200 z-0 ring-2 ring-white cursor-pointer hover:border-slate-400 transition-colors"
-                        style={{ left: `${pos}%` }}
+                        className="group/pacer absolute top-0 bottom-0 w-[4px] transition-all duration-1000 z-10 cursor-pointer"
+                        style={{
+                          left: `${Math.min(pos, 98)}%`,
+                          backgroundColor:
+                            displayMode === "absolute"
+                              ? LEVEL_COLORS[lvl]
+                              : "#1e293b",
+                        }}
                       >
-                        <span className="absolute -top-7 left-0 -translate-x-1/2 text-[10px] font-black text-slate-400 bg-white px-1 font-sans">
-                          {lvl}
-                        </span>
-
-                        {/* Tooltip for Package Line */}
                         <div
                           className={cn(
-                            "absolute top-8 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-[10px] font-bold px-3 py-1.5 rounded-lg transition-all pointer-events-none whitespace-nowrap z-50",
+                            "absolute -top-12 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-[10px] font-black px-3 py-1.5 rounded-lg transition-all pointer-events-none whitespace-nowrap z-50",
                             isTooltip
                               ? "opacity-100 translate-y-0"
-                              : "opacity-0 translate-y-1 group-hover/line:opacity-100 group-hover/line:translate-y-0",
-                            // Conditional Alignment
-                            alignment === "center" && "left-0 -translate-x-1/2",
-                            alignment === "left" && "left-0 translate-x-3",
-                            alignment === "right" && "right-0 -translate-x-3"
+                              : "opacity-0 translate-y-1 group-hover/pacer:opacity-100 group-hover/pacer:translate-y-0"
                           )}
+                          style={{
+                            backgroundColor:
+                              displayMode === "absolute" ? LEVEL_COLORS[lvl] : "",
+                          }}
                         >
-                          {lvl}: {target.toFixed(0)} {row.catalog.unit}
+                          PUSH {displayMode === "absolute" ? lvl : ""}:{" "}
+                          {(
+                            pacerPercent *
+                            (displayMode === "absolute"
+                              ? row.catalog[lvl] * (raceMode === "year" ? 12 : 1)
+                              : 100)
+                          ).toFixed(0)}
+                          {displayMode === "relative" ? "%" : ""}
                           <div
-                            className={cn(
-                              "absolute bottom-full left-1/2 -translate-x-1/2 border-4 border-transparent border-b-slate-800",
-                              alignment === "center" &&
-                              "left-1/2 -translate-x-1/2",
-                              alignment === "left" &&
-                              "left-4 translate-x-[-50%]", // Adjust arrow to point to line
-                              alignment === "right" &&
-                              "right-4 translate-x-[50%]"
-                            )}
+                            className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent"
+                            style={{
+                              borderTopColor:
+                                displayMode === "absolute"
+                                  ? LEVEL_COLORS[lvl]
+                                  : "#0f172a",
+                            }}
                           />
                         </div>
                       </div>
                     );
-                  })
-                )}
+                  })}
 
-                {/* Pacer indicators */}
-                {(["S", "M", "L", "XL"] as const).map((lvl) => {
-                  let pos = 0;
-                  if (displayMode === "relative") {
-                    pos = ((pacerPercent * 100) / VIEW_MAX_PERCENT) * 100;
-                    if (lvl !== "S") return null;
-                  } else {
-                    const target =
-                      row.catalog[lvl] * (raceMode === "year" ? 12 : 1);
-                    pos = ((target * pacerPercent) / row.maxAbsolute) * 100;
-                  }
+                  {/* User Avatars */}
+                  {(() => {
+                    // Group users by position to handle overlaps
+                    const usersWithPos = row.users.map((u) => {
+                      const pos =
+                        displayMode === "relative"
+                          ? (u.progress / VIEW_MAX_PERCENT) * 100
+                          : (u.absolute / row.maxAbsolute) * 100;
+                      return { ...u, pos };
+                    });
 
-                  const id = `${row.exercise}-${lvl}`;
-                  const isTooltip = activeTooltip?.id === id;
+                    const groups = new Map<string, typeof usersWithPos>();
+                    usersWithPos.forEach((u) => {
+                      // Use 2 decimal places for grouping key to catch practically identical positions
+                      const key = u.pos.toFixed(2);
+                      if (!groups.has(key)) groups.set(key, []);
+                      groups.get(key)!.push(u);
+                    });
 
-                  return (
-                    <div
-                      key={lvl}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setActiveTooltip(
-                          isTooltip ? null : { id, type: "pacer" }
-                        );
-                      }}
-                      className="group/pacer absolute top-0 bottom-0 w-[4px] transition-all duration-1000 z-10 cursor-pointer"
-                      style={{
-                        left: `${Math.min(pos, 98)}%`,
-                        backgroundColor:
-                          displayMode === "absolute"
-                            ? LEVEL_COLORS[lvl]
-                            : "#1e293b",
-                      }}
-                    >
-                      <div
-                        className={cn(
-                          "absolute -top-12 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-[10px] font-black px-3 py-1.5 rounded-lg transition-all pointer-events-none whitespace-nowrap z-50",
-                          isTooltip
-                            ? "opacity-100 translate-y-0"
-                            : "opacity-0 translate-y-1 group-hover/pacer:opacity-100 group-hover/pacer:translate-y-0"
-                        )}
-                        style={{
-                          backgroundColor:
-                            displayMode === "absolute" ? LEVEL_COLORS[lvl] : "",
-                        }}
-                      >
-                        PUSH {displayMode === "absolute" ? lvl : ""}:{" "}
-                        {(
-                          pacerPercent *
-                          (displayMode === "absolute"
-                            ? row.catalog[lvl] * (raceMode === "year" ? 12 : 1)
-                            : 100)
-                        ).toFixed(0)}
-                        {displayMode === "relative" ? "%" : ""}
+                    return Array.from(groups.values()).map((group) => {
+                      // If current user is in this group, use them as the primary visual
+                      // otherwise just take the first one
+                      const primaryUser =
+                        group.find((u) => u.name === currentUser) || group[0]!;
+                      const isMeInGroup = group.some(
+                        (u) => u.name === currentUser
+                      );
+                      const groupSize = group.length;
+
+                      // Position comes from the group key effectively, or just the first user's pos
+                      const pos = group[0]!.pos;
+                      const id = `${row.exercise}-group-${pos.toFixed(2)}`;
+                      const isTooltip = activeTooltip?.id === id;
+
+                      // Calculate tooltip alignment based on position
+                      // If < 20% left, align left
+                      // If > 80% right, align right
+                      // Else center
+                      let alignment: "left" | "center" | "right" = "center";
+                      if (pos < 20) alignment = "left";
+                      else if (pos > 80) alignment = "right";
+
+                      return (
                         <div
-                          className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent"
-                          style={{
-                            borderTopColor:
-                              displayMode === "absolute"
-                                ? LEVEL_COLORS[lvl]
-                                : "#0f172a",
-                          }}
-                        />
-                      </div>
-                    </div>
-                  );
-                })}
-
-                {/* User Avatars */}
-                {(() => {
-                  // Group users by position to handle overlaps
-                  const usersWithPos = row.users.map((u) => {
-                    const pos =
-                      displayMode === "relative"
-                        ? (u.progress / VIEW_MAX_PERCENT) * 100
-                        : (u.absolute / row.maxAbsolute) * 100;
-                    return { ...u, pos };
-                  });
-
-                  const groups = new Map<string, typeof usersWithPos>();
-                  usersWithPos.forEach((u) => {
-                    // Use 2 decimal places for grouping key to catch practically identical positions
-                    const key = u.pos.toFixed(2);
-                    if (!groups.has(key)) groups.set(key, []);
-                    groups.get(key)!.push(u);
-                  });
-
-                  return Array.from(groups.values()).map((group) => {
-                    // If current user is in this group, use them as the primary visual
-                    // otherwise just take the first one
-                    const primaryUser =
-                      group.find((u) => u.name === currentUser) || group[0]!;
-                    const isMeInGroup = group.some(
-                      (u) => u.name === currentUser
-                    );
-                    const groupSize = group.length;
-
-                    // Position comes from the group key effectively, or just the first user's pos
-                    const pos = group[0]!.pos;
-                    const id = `${row.exercise}-group-${pos.toFixed(2)}`;
-                    const isTooltip = activeTooltip?.id === id;
-
-                    // Calculate tooltip alignment based on position
-                    // If < 20% left, align left
-                    // If > 80% right, align right
-                    // Else center
-                    let alignment: "left" | "center" | "right" = "center";
-                    if (pos < 20) alignment = "left";
-                    else if (pos > 80) alignment = "right";
-
-                    return (
-                      <div
-                        key={id}
-                        className={cn(
-                          "absolute -translate-x-1/2 transition-all duration-1000 ease-out",
-                          isMeInGroup ? "z-30" : "z-20"
-                        )}
-                        style={{ left: `${Math.min(pos, 98)}%` }}
-                      >
-                        <div
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setActiveTooltip(
-                              isTooltip ? null : { id, type: "user" }
-                            );
-                          }}
+                          key={id}
                           className={cn(
-                            "group/user relative w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-black transition-all hover:scale-110 active:scale-95 cursor-pointer",
-                            isMeInGroup
-                              ? "ring-4 ring-white outline outline-2 outline-slate-800"
-                              : "ring-2 ring-white"
+                            "absolute -translate-x-1/2 transition-all duration-1000 ease-out",
+                            isMeInGroup ? "z-30" : "z-20"
                           )}
-                          style={{
-                            backgroundColor: LEVEL_COLORS[primaryUser.level],
-                            color: "white",
-                          }}
+                          style={{ left: `${Math.min(pos, 98)}%` }}
                         >
-                          {primaryUser.initials}
-
-                          {/* Group Indicator (if more than 1 user) */}
-                          {groupSize > 1 && (
-                            <div className="absolute -top-1 -right-1 w-4 h-4 bg-slate-800 text-white flex items-center justify-center text-[8px] rounded-full ring-2 ring-white">
-                              {groupSize}
-                            </div>
-                          )}
-
                           <div
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setActiveTooltip(
+                                isTooltip ? null : { id, type: "user" }
+                              );
+                            }}
                             className={cn(
-                              "absolute bottom-full mb-3 bg-slate-800 text-white text-[10px] font-bold px-4 py-3 rounded-2xl transition-all whitespace-nowrap z-50 pointer-events-none border border-slate-700 flex flex-col gap-2 min-w-[120px]",
-                              isTooltip
-                                ? "opacity-100 scale-100"
-                                : "opacity-0 scale-75 group-hover/user:opacity-100 group-hover/user:scale-100",
-                              // Conditional Alignment
-                              alignment === "center" &&
-                              "left-1/2 -translate-x-1/2 origin-bottom",
-                              alignment === "left" &&
-                              "left-0 origin-bottom-left",
-                              alignment === "right" &&
-                              "right-0 origin-bottom-right"
+                              "group/user relative w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-black transition-all hover:scale-110 active:scale-95 cursor-pointer",
+                              isMeInGroup
+                                ? "ring-4 ring-white outline outline-2 outline-slate-800"
+                                : "ring-2 ring-white"
                             )}
+                            style={{
+                              backgroundColor: LEVEL_COLORS[primaryUser.level],
+                              color: "white",
+                            }}
                           >
-                            {group.map((u, idx) => (
-                              <div
-                                key={u.name}
-                                className={cn(
-                                  "flex flex-col gap-0.5",
-                                  idx !== group.length - 1 &&
-                                  "border-b border-slate-700 pb-2"
-                                )}
-                              >
-                                <div className="flex items-center gap-2">
-                                  <span
-                                    className="w-2 h-2 rounded-full"
-                                    style={{
-                                      backgroundColor: LEVEL_COLORS[u.level],
-                                    }}
-                                  />
-                                  <p className="font-black text-xs">
-                                    {u.name} {u.name === currentUser && "(Ich)"}
-                                  </p>
-                                </div>
-                                <p className="text-slate-400 font-bold pl-4">
-                                  {u.progress.toFixed(1)}% |{" "}
-                                  {u.absolute.toFixed(0)} {u.unit}
-                                </p>
+                            {primaryUser.initials}
+
+                            {/* Group Indicator (if more than 1 user) */}
+                            {groupSize > 1 && (
+                              <div className="absolute -top-1 -right-1 w-4 h-4 bg-slate-800 text-white flex items-center justify-center text-[8px] rounded-full ring-2 ring-white">
+                                {groupSize}
                               </div>
-                            ))}
+                            )}
 
                             <div
                               className={cn(
-                                "absolute top-full border-4 border-transparent border-t-slate-800",
+                                "absolute bottom-full mb-3 bg-slate-800 text-white text-[10px] font-bold px-4 py-3 rounded-2xl transition-all whitespace-nowrap z-50 pointer-events-none border border-slate-700 flex flex-col gap-2 min-w-[120px]",
+                                isTooltip
+                                  ? "opacity-100 scale-100"
+                                  : "opacity-0 scale-75 group-hover/user:opacity-100 group-hover/user:scale-100",
+                                // Conditional Alignment
                                 alignment === "center" &&
-                                "left-1/2 -translate-x-1/2",
-                                alignment === "left" && "left-4",
-                                alignment === "right" && "right-4"
+                                "left-1/2 -translate-x-1/2 origin-bottom",
+                                alignment === "left" &&
+                                "left-0 origin-bottom-left",
+                                alignment === "right" &&
+                                "right-0 origin-bottom-right"
                               )}
-                            />
+                            >
+                              {group.map((u, idx) => (
+                                <div
+                                  key={u.name}
+                                  className={cn(
+                                    "flex flex-col gap-0.5",
+                                    idx !== group.length - 1 &&
+                                    "border-b border-slate-700 pb-2"
+                                  )}
+                                >
+                                  <div className="flex items-center gap-2">
+                                    <span
+                                      className="w-2 h-2 rounded-full"
+                                      style={{
+                                        backgroundColor: LEVEL_COLORS[u.level],
+                                      }}
+                                    />
+                                    <p className="font-black text-xs">
+                                      {u.name} {u.name === currentUser && "(Ich)"}
+                                    </p>
+                                  </div>
+                                  <p className="text-slate-400 font-bold pl-4">
+                                    {u.progress.toFixed(1)}% |{" "}
+                                    {u.absolute.toFixed(0)} {u.unit}
+                                  </p>
+                                </div>
+                              ))}
+
+                              <div
+                                className={cn(
+                                  "absolute top-full border-4 border-transparent border-t-slate-800",
+                                  alignment === "center" &&
+                                  "left-1/2 -translate-x-1/2",
+                                  alignment === "left" && "left-4",
+                                  alignment === "right" && "right-4"
+                                )}
+                              />
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    );
-                  });
-                })()}
+                      );
+                    });
+                  })()}
+                </div>
               </div>
-            </div>
           ))}
 
-          {filteredStats.length === 0 && (
-            <div className="py-24 text-center bg-slate-50 rounded-[2.5rem] border-2 border-dashed border-slate-200">
-              <Trophy className="mx-auto text-slate-200 w-16 h-16 mb-4" />
-              <p className="text-slate-400 font-black uppercase tracking-widest">
-                Keine Daten verfügbar
-              </p>
+              {filteredStats.length === 0 && (
+                <div className="py-24 text-center bg-slate-50 rounded-[2.5rem] border-2 border-dashed border-slate-200">
+                  <Trophy className="mx-auto text-slate-200 w-16 h-16 mb-4" />
+                  <p className="text-slate-400 font-black uppercase tracking-widest">
+                    Keine Daten verfügbar
+                  </p>
+                </div>
+              )}
             </div>
-          )}
-        </div>
       </div>
     </Layout>
   );
