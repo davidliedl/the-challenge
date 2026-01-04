@@ -379,6 +379,9 @@ export default function RacePage() {
                     }
 
                     const id = `${row.exercise}-${lvl}`;
+                    let alignment: "left" | "center" | "right" = "center";
+                    if (pos < 20) alignment = "left";
+                    else if (pos > 80) alignment = "right";
                     const isTooltip = activeTooltip?.id === id;
 
                     return (
@@ -395,7 +398,7 @@ export default function RacePage() {
                                 type: "pacer",
                                 x: rect.left + rect.width / 2,
                                 y: rect.top,
-                                alignment: "center",
+                                alignment,
                                 data: {
                                   lvl,
                                   value:
@@ -529,20 +532,15 @@ export default function RacePage() {
         {activeTooltip && (
           <Portal>
             <div
-              className={cn(
-                "fixed z-[100] bg-slate-800 text-white text-[10px] font-bold px-4 py-3 rounded-2xl transition-all whitespace-nowrap border border-slate-700 flex flex-col gap-2 min-w-[120px] shadow-xl",
-                activeTooltip.alignment === "center" && "-translate-x-1/2",
-                activeTooltip.alignment === "left" && "-translate-x-4",
-                activeTooltip.alignment === "right" && "translate-x-[-100%] translate-x-4"
-              )}
+              className="fixed z-[100] bg-slate-800 text-white text-[10px] font-bold px-4 py-3 rounded-2xl transition-all whitespace-nowrap border border-slate-700 flex flex-col gap-2 min-w-[120px] shadow-xl"
               style={{
                 top: activeTooltip.y - 12, // 12px margin above target
                 left: activeTooltip.x,
                 transform: `translate(${activeTooltip.alignment === "center"
-                  ? "-50%"
-                  : activeTooltip.alignment === "left"
-                    ? "0"
-                    : "-100%"
+                    ? "-50%"
+                    : activeTooltip.alignment === "left"
+                      ? "-1rem"
+                      : "calc(-100% + 1rem)"
                   }, -100%)`, // Move up by 100% of height
               }}
             >
@@ -594,74 +592,7 @@ export default function RacePage() {
             </div>
           </Portal>
         )}
-        {activeTooltip && (
-          <Portal>
-            <div
-              className={cn(
-                "fixed z-[100] bg-slate-800 text-white text-[10px] font-bold px-4 py-3 rounded-2xl transition-all whitespace-nowrap border border-slate-700 flex flex-col gap-2 min-w-[120px] shadow-xl",
-                activeTooltip.alignment === "center" && "-translate-x-1/2",
-                activeTooltip.alignment === "left" && "-translate-x-4",
-                activeTooltip.alignment === "right" && "translate-x-[-100%] translate-x-4"
-              )}
-              style={{
-                top: activeTooltip.y - 12, // 12px margin above target
-                left: activeTooltip.x,
-                transform: `translate(${activeTooltip.alignment === "center"
-                  ? "-50%"
-                  : activeTooltip.alignment === "left"
-                    ? "0"
-                    : "-100%"
-                  }, -100%)`, // Move up by 100% of height
-              }}
-            >
-              {activeTooltip.type === "pacer" && (
-                <>
-                  PUSH {displayMode === "absolute" ? activeTooltip.data.lvl : ""}:{" "}
-                  {activeTooltip.data.value.toFixed(0)}
-                  {displayMode === "relative" ? "%" : ""}
-                </>
-              )}
 
-              {activeTooltip.type === "user" &&
-                activeTooltip.data.group.map((u: any, idx: number) => (
-                  <div
-                    key={u.name}
-                    className={cn(
-                      "flex flex-col gap-0.5",
-                      idx !== activeTooltip.data.group.length - 1 &&
-                      "border-b border-slate-700 pb-2"
-                    )}
-                  >
-                    <div className="flex items-center gap-2">
-                      <span
-                        className="w-2 h-2 rounded-full"
-                        style={{
-                          backgroundColor: LEVEL_COLORS[u.level as keyof typeof LEVEL_COLORS],
-                        }}
-                      />
-                      <p className="font-black text-xs">
-                        {u.name} {u.name === currentUser && "(Ich)"}
-                      </p>
-                    </div>
-                    <p className="text-slate-400 font-bold pl-4">
-                      {u.progress.toFixed(1)}% | {u.absolute.toFixed(0)}{" "}
-                      {u.unit}
-                    </p>
-                  </div>
-                ))}
-
-              <div
-                className={cn(
-                  "absolute top-full border-4 border-transparent border-t-slate-800",
-                  activeTooltip.alignment === "center" &&
-                  "left-1/2 -translate-x-1/2",
-                  activeTooltip.alignment === "left" && "left-4",
-                  activeTooltip.alignment === "right" && "right-4"
-                )}
-              />
-            </div>
-          </Portal>
-        )}
       </div>
     </Layout>
   );
