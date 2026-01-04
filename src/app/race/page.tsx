@@ -388,6 +388,14 @@ export default function RacePage() {
                     const id = `${row.exercise}-group-${pos.toFixed(2)}`;
                     const isTooltip = activeTooltip?.id === id;
 
+                    // Calculate tooltip alignment based on position
+                    // If < 20% left, align left
+                    // If > 80% right, align right
+                    // Else center
+                    let alignment: "left" | "center" | "right" = "center";
+                    if (pos < 20) alignment = "left";
+                    else if (pos > 80) alignment = "right";
+
                     return (
                       <div
                         key={id}
@@ -426,10 +434,17 @@ export default function RacePage() {
 
                           <div
                             className={cn(
-                              "absolute bottom-full mb-3 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-[10px] font-bold px-4 py-3 rounded-2xl transition-all whitespace-nowrap z-50 pointer-events-none border border-slate-700 flex flex-col gap-2 min-w-[120px]",
+                              "absolute bottom-full mb-3 bg-slate-800 text-white text-[10px] font-bold px-4 py-3 rounded-2xl transition-all whitespace-nowrap z-50 pointer-events-none border border-slate-700 flex flex-col gap-2 min-w-[120px]",
                               isTooltip
                                 ? "opacity-100 scale-100"
-                                : "opacity-0 scale-75 group-hover/user:opacity-100 group-hover/user:scale-100"
+                                : "opacity-0 scale-75 group-hover/user:opacity-100 group-hover/user:scale-100",
+                              // Conditional Alignment
+                              alignment === "center" &&
+                                "left-1/2 -translate-x-1/2 origin-bottom",
+                              alignment === "left" &&
+                                "left-0 origin-bottom-left",
+                              alignment === "right" &&
+                                "right-0 origin-bottom-right"
                             )}
                           >
                             {group.map((u, idx) => (
@@ -438,7 +453,7 @@ export default function RacePage() {
                                 className={cn(
                                   "flex flex-col gap-0.5",
                                   idx !== group.length - 1 &&
-                                  "border-b border-slate-700 pb-2"
+                                    "border-b border-slate-700 pb-2"
                                 )}
                               >
                                 <div className="flex items-center gap-2">
@@ -459,7 +474,15 @@ export default function RacePage() {
                               </div>
                             ))}
 
-                            <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-800" />
+                            <div
+                              className={cn(
+                                "absolute top-full border-4 border-transparent border-t-slate-800",
+                                alignment === "center" &&
+                                  "left-1/2 -translate-x-1/2",
+                                alignment === "left" && "left-4",
+                                alignment === "right" && "right-4"
+                              )}
+                            />
                           </div>
                         </div>
                       </div>
