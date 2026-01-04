@@ -418,8 +418,8 @@ export default function RacePage() {
                         }}
                       />
                     );
-                  });
                   })}
+
 
                   {/* User Avatars */}
                   {(() => {
