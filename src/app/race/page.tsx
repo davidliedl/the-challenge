@@ -556,17 +556,18 @@ export default function RacePage() {
                   })()}
                 </div>
               </div>
+            </div>
           ))}
 
-              {filteredStats.length === 0 && (
-                <div className="py-24 text-center bg-slate-50 rounded-[2.5rem] border-2 border-dashed border-slate-200">
-                  <Trophy className="mx-auto text-slate-200 w-16 h-16 mb-4" />
-                  <p className="text-slate-400 font-black uppercase tracking-widest">
-                    Keine Daten verfügbar
-                  </p>
-                </div>
-              )}
+          {filteredStats.length === 0 && (
+            <div className="py-24 text-center bg-slate-50 rounded-[2.5rem] border-2 border-dashed border-slate-200">
+              <Trophy className="mx-auto text-slate-200 w-16 h-16 mb-4" />
+              <p className="text-slate-400 font-black uppercase tracking-widest">
+                Keine Daten verfügbar
+              </p>
             </div>
+          )}
+        </div>
       </div>
     </Layout>
   );
