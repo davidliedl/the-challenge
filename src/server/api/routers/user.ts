@@ -26,7 +26,7 @@ export const userRouter = createTRPCRouter({
     .input(
       z.object({
         name: z.string().min(1),
-        pin: z.string().length(6).optional(), // Pin is optional now (only for new users)
+        pin: z.string().length(4).optional(), // Pin is optional now (only for new users)
         goals: z
           .array(
             z.object({

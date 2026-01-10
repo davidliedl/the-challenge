@@ -16,7 +16,7 @@ export function RegisterForm({
   onSuccess,
 }: {
   currentUser?: string;
-  onSuccess: (name: string) => void;
+  onSuccess: (user: { id: string; name: string }, pin?: string) => void;
 }) {
   const [name, setName] = useState(currentUser || "");
   const [pin, setPin] = useState("");
@@ -30,8 +30,8 @@ export function RegisterForm({
   >([]);
 
   const register = api.user.register.useMutation({
-    onSuccess: () => {
-      onSuccess(name);
+    onSuccess: (data) => {
+      onSuccess(data, pin);
     },
   });
 
@@ -65,7 +65,7 @@ export function RegisterForm({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // Validate pin if new user
-    if (!currentUser && pin.length < 6) return;
+    if (!currentUser && pin.length < 4) return;
 
     if (name && selections.length > 0 && !isNameTaken) {
       register.mutate({
@@ -131,21 +131,40 @@ export function RegisterForm({
             )}
 
             <div className="pt-4">
-              <label className="block text-sm font-semibold text-slate-700 mb-2 text-center text-lg">
-                Dein 6-stelliger Pin
+              <label className="block text-sm font-semibold text-slate-700 mb-4 text-center text-lg">
+                Dein 4-stelliger Pin
               </label>
-              <input
-                type="password"
-                inputMode="numeric"
-                pattern="[0-9]*"
-                maxLength={6}
-                value={pin}
-                onChange={(e) => setPin(e.target.value.replace(/[^0-9]/g, ""))}
-                className="w-full text-center text-4xl font-black tracking-[0.5em] py-3 bg-slate-50 rounded-xl border-2 border-slate-200 focus:border-slate-800 focus:outline-none"
-                placeholder="••••••"
-                required
-              />
-              <p className="text-center text-xs text-slate-400 mt-2">
+
+              <div className="relative w-full max-w-[200px] mx-auto h-16 mb-2">
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                  maxLength={4}
+                  value={pin}
+                  onChange={(e) =>
+                    setPin(e.target.value.replace(/[^0-9]/g, ""))
+                  }
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer text-[40px] z-10"
+                />
+                <div className="flex justify-between w-full h-full absolute inset-0 pointer-events-none">
+                  {[0, 1, 2, 3].map((i) => (
+                    <div
+                      key={i}
+                      className={cn(
+                        "w-10 h-14 rounded-xl border-2 flex items-center justify-center text-xl font-black transition-all duration-200 bg-slate-50",
+                        pin[i]
+                          ? "border-slate-800 text-slate-800 scale-105 bg-white shadow-sm"
+                          : "border-slate-200 text-slate-300"
+                      )}
+                    >
+                      {pin[i] || ""}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <p className="text-center text-xs text-slate-400 mt-4">
                 Diesen Pin brauchst du zum Einloggen.
               </p>
             </div>
@@ -244,7 +263,7 @@ export function RegisterForm({
         <button
           type="submit"
           disabled={
-            (!currentUser && (!name || pin.length < 6 || isNameTaken)) ||
+            (!currentUser && (!name || pin.length < 4 || isNameTaken)) ||
             selections.length === 0 ||
             register.isPending
           }

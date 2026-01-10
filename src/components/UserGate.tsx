@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { api } from "~/trpc/react";
 import { Trophy, UserPlus, LogIn, Check } from "lucide-react";
 import { RegisterForm } from "./RegisterForm";
@@ -33,7 +33,13 @@ export function UserGate({ onSelect }: { onSelect: (name: string) => void }) {
       { enabled: !!selectedUser }
     );
 
-  const { data: users, isLoading } = api.user.getAll.useQuery();
+  const { data: users, isLoading, refetch } = api.user.getAll.useQuery();
+
+  useEffect(() => {
+    if (mode === "select") {
+      void refetch();
+    }
+  }, [mode, refetch]);
 
   const handleUserClick = (user: { id: string; name: string }) => {
     setSelectedUser(user);
@@ -42,12 +48,32 @@ export function UserGate({ onSelect }: { onSelect: (name: string) => void }) {
     setError("");
   };
 
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  // Focus input when entering pin mode
+  useEffect(() => {
+    if (mode === "pin" && selectedUser) {
+      // Small timeout to ensure render is complete/animation started
+      const timer = setTimeout(() => {
+        inputRef.current?.focus();
+      }, 50);
+      return () => clearTimeout(timer);
+    }
+  }, [mode, selectedUser]);
+
+  // Handle Enter key
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && pin.length === 4) {
+      void handlePinSubmit(e);
+    }
+  };
+
   const handlePinSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedUser) return;
 
-    if (pin.length < 6) {
-      setError("Der Pin muss mindestens 6 Stellen haben.");
+    if (pin.length < 4) {
+      setError("Der Pin muss mindestens 4 Stellen haben.");
       return;
     }
 
@@ -80,7 +106,7 @@ export function UserGate({ onSelect }: { onSelect: (name: string) => void }) {
   if (mode === "landing") {
     return (
       <div className="flex items-center justify-center p-4 w-full">
-        <div className="max-w-lg w-full space-y-4 animate-in fade-in zoom-in duration-500">
+        <div className="max-w-lg w-full space-y-4">
           <button
             onClick={() => setMode("select")}
             className="w-full py-4 bg-slate-800 text-white rounded-[2rem] font-black text-xl flex items-center justify-center gap-3 hover:bg-slate-900 transition-all active:scale-95 border-4 border-slate-800"
@@ -157,39 +183,63 @@ export function UserGate({ onSelect }: { onSelect: (name: string) => void }) {
             Zurück
           </button>
 
-          <div className="space-y-2">
-            <h2 className="text-2xl font-bold text-slate-800">
-              Hallo {selectedUser.name}!
-            </h2>
-            <p className="text-slate-500">
-              {isLoadingPassword
-                ? "Lade Status..."
-                : hasPassword
-                ? "Bitte gib deinen Pin ein."
-                : "Erstelle deinen 6-stelligen Pin."}
-            </p>
-          </div>
+          <div className="space-y-6">
+            <div className="text-center space-y-2">
+              <h2 className="text-2xl font-black text-slate-800 uppercase tracking-tighter">
+                {hasPassword ? "Willkommen zurück!" : "Erstelle deinen Pin"}
+              </h2>
+              <p className="text-slate-500 font-medium">
+                {hasPassword
+                  ? "Bitte gib deinen 4-stelligen Pin ein."
+                  : "Wähle einen 4-stelligen Pin für dein Profil."}
+              </p>
+            </div>
 
-          <form onSubmit={handlePinSubmit} className="space-y-4">
-            <input
-              type="password"
-              inputMode="numeric"
-              pattern="[0-9]*"
-              maxLength={6}
-              value={pin}
-              onChange={(e) => setPin(e.target.value)}
-              className="w-full text-center text-4xl font-black tracking-[1em] py-4 bg-slate-50 rounded-xl border-2 border-slate-200 focus:border-slate-800 focus:outline-none"
-              placeholder="••••••"
-              disabled={isLoadingAuth || isLoadingPassword}
-              autoFocus
-            />
+            <div className="relative w-full max-w-[200px] mx-auto h-16">
+              <input
+                ref={inputRef}
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                maxLength={4}
+                autoFocus
+                value={pin}
+                onKeyDown={handleKeyDown}
+                onChange={(e) => {
+                  const val = e.target.value.replace(/[^0-9]/g, "");
+                  setPin(val);
+                  setError("");
+                }}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer text-[40px] z-10"
+                style={{ letterSpacing: "1em" }}
+              />
+              <div className="flex justify-between w-full h-full absolute inset-0 pointer-events-none">
+                {[0, 1, 2, 3].map((i) => (
+                  <div
+                    key={i}
+                    className={cn(
+                      "w-10 h-14 rounded-xl border-2 flex items-center justify-center text-2xl font-black transition-all duration-200 bg-slate-50",
+                      pin[i]
+                        ? "border-slate-800 text-slate-800 scale-105 bg-white"
+                        : "border-slate-200 text-slate-300",
+                      error && "border-red-400 bg-red-50 text-red-800"
+                    )}
+                  >
+                    {pin[i] ? "●" : ""}
+                  </div>
+                ))}
+              </div>
+            </div>
+
             {error && (
-              <p className="text-red-500 font-bold text-center">{error}</p>
+              <div className="bg-red-50 text-red-600 text-sm font-bold text-center p-3 rounded-xl animate-shake">
+                {error}
+              </div>
             )}
 
             <button
-              type="submit"
-              disabled={isLoadingAuth || isLoadingPassword || pin.length < 6}
+              onClick={handlePinSubmit}
+              disabled={isLoadingAuth || isLoadingPassword || pin.length < 4}
               className="w-full py-4 bg-slate-800 text-white rounded-[2rem] font-black text-xl hover:bg-slate-900 transition-all active:scale-95 disabled:opacity-50 disabled:active:scale-100"
             >
               {isLoadingAuth
@@ -198,14 +248,34 @@ export function UserGate({ onSelect }: { onSelect: (name: string) => void }) {
                 ? "Einloggen"
                 : "Pin setzen & Einloggen"}
             </button>
-          </form>
+
+            <button
+              onClick={() => setSelectedUser(null)} // This seems redundant with the top "Zurück" button which calls setMode("select"). Maybe keep just one? But keeping as is for now to match UI user liked.
+              // Actually, SelectedUser(null) effectively goes to back to select if we handle it top level,
+              // but here setMode("select") is better.
+              // Wait, handleUserClick sets mode to pin.
+              // In the original code (lines 157-162), there is a Zurück button calling setMode("select").
+              // AND at the bottom (lines 228-233) there is "Abbrechen" calling setSelectedUser(null).
+              // setSelectedUser(null) might not change mode back to select instantly?
+              // In UserGate, if mode is "pin" AND selectedUser is truthy, it renders this view.
+              // If we set selectedUser(null), it will fall through?
+              // Let's verify line 149: `if (mode === "pin" && selectedUser)`
+              // If selectedUser becomes null, it won't match.
+              // It will fall to the end return (RegisterForm/Select wrapper).
+              // This seems confusing.
+              // Let's stick to cleaning up the placeholders first.
+              className="w-full py-3 text-slate-400 font-bold hover:text-slate-600 transition-colors"
+            >
+              Abbrechen
+            </button>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="flex items-center justify-center p-4">
+    <div className="flex items-center justify-center p-4 bg-white rounded-[2rem] py-8 px-6">
       <div className="w-full">
         <div className="mb-4">
           <button
@@ -216,15 +286,32 @@ export function UserGate({ onSelect }: { onSelect: (name: string) => void }) {
           </button>
         </div>
         <RegisterForm
-          onSuccess={(name) => {
-            // For registration, we can either select the user and show pin screen,
-            // or maybe we should just select the user and let them set the pin.
-            // We need to fetch the ID though. RegisterForm returns name?
-            // If RegisterForm returns name, we need to find the ID.
-            // Ideally RegisterForm should return the full user object or we refetch.
-            // For now, let's just go to select mode, or "landing".
-            // Simplest: Go to select mode.
-            setMode("select");
+          onSuccess={async (user, pin) => {
+            if (pin) {
+              // Auto-login for new registrations
+              setIsLoadingAuth(true); // Reuse state or add new one if needed, but this is fine visually
+              try {
+                const result = await signIn("credentials", {
+                  userId: user.id,
+                  pin: pin,
+                  redirect: false,
+                });
+
+                if (result?.ok) {
+                  onSelect(user.name);
+                } else {
+                  // Fallback to select mode if auto-login fails
+                  setMode("select");
+                }
+              } catch (e) {
+                setMode("select");
+              } finally {
+                setIsLoadingAuth(false);
+              }
+            } else {
+              // For existing users just adding goals, or fallback
+              setMode("select");
+            }
           }}
         />
       </div>
