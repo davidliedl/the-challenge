@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { api } from "~/trpc/react";
-import { Layout } from "~/components/Layout";
+
 import { UserGate } from "~/components/UserGate";
 import { DashboardOverview } from "~/components/DashboardOverview";
 import { ListChecks } from "lucide-react";
@@ -22,32 +22,28 @@ export default function OverviewPage() {
   if (!isLoaded) return null;
   if (!currentUser) {
     return (
-      <Layout>
-        <UserGate
-          onSelect={(name) => {
-            setCurrentUser(name);
-            localStorage.setItem("push_challenge_user", name);
-          }}
-        />
-      </Layout>
+      <UserGate
+        onSelect={(name) => {
+          setCurrentUser(name);
+          localStorage.setItem("push_challenge_user", name);
+        }}
+      />
     );
   }
 
   return (
-    <Layout>
-      <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-        <header className="bg-white rounded-3xl p-8 border border-slate-100">
-          <h1 className="flex items-center gap-3 text-3xl font-black text-slate-800 tracking-tighter uppercase">
-            <ListChecks className="text-amber-500 w-8 h-8" />
-            ÜBERBLICK
-          </h1>
-          <p className="text-slate-400 font-bold text-sm mt-1 uppercase tracking-widest">
-            Die gesamte Achievement-Matrix 2026
-          </p>
-        </header>
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <header className="bg-white rounded-3xl p-8 border border-slate-100">
+        <h1 className="flex items-center gap-3 text-3xl font-black text-slate-800 tracking-tighter uppercase">
+          <ListChecks className="text-amber-500 w-8 h-8" />
+          ÜBERBLICK
+        </h1>
+        <p className="text-slate-400 font-bold text-sm mt-1 uppercase tracking-widest">
+          Die gesamte Achievement-Matrix 2026
+        </p>
+      </header>
 
-        <DashboardOverview users={stats} />
-      </div>
-    </Layout>
+      <DashboardOverview users={stats} />
+    </div>
   );
 }

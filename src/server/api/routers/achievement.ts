@@ -35,7 +35,15 @@ export const achievementRouter = createTRPCRouter({
         },
       });
     }),
-    
+
+  delete: publicProcedure
+    .input(z.string())
+    .mutation(async ({ ctx, input }) => {
+      return ctx.db.achievement.delete({
+        where: { id: input },
+      });
+    }),
+
   getStats: publicProcedure.query(async ({ ctx }) => {
     const users = await ctx.db.user.findMany({
       include: {

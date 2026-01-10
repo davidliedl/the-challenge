@@ -1,11 +1,32 @@
-import { type RouterOutputs } from "~/trpc/react";
+import { useState } from "react";
+import { type RouterOutputs, api } from "~/trpc/react";
 import { EXERCISE_CATALOG } from "~/constants";
-import { CalendarDays, Dumbbell, Trophy } from "lucide-react";
+import { CalendarDays, Dumbbell, Trophy, Trash2, Loader2 } from "lucide-react";
 import { clsx } from "clsx";
 
 type User = RouterOutputs["achievement"]["getStats"][number];
 
 export function ProgressLog({ user }: { user: User }) {
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const utils = api.useUtils();
+
+  const deleteAchievement = api.achievement.delete.useMutation({
+    onSuccess: () => {
+      void utils.achievement.getStats.invalidate();
+      setDeletingId(null);
+    },
+    onError: () => {
+      setDeletingId(null);
+    }
+  });
+
+  const handleDelete = async (id: string) => {
+    if (confirm("Bist du sicher, dass du diesen Fortschritt löschen möchtest?")) {
+      setDeletingId(id);
+      deleteAchievement.mutate(id);
+    }
+  };
+
   const sortedAchievements = [...user.achievements].sort(
     (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
   );
@@ -28,7 +49,9 @@ export function ProgressLog({ user }: { user: User }) {
             <tr>
               <th className="px-6 py-4">Datum</th>
               <th className="px-6 py-4">Übung</th>
+              <th className="px-6 py-4">Übung</th>
               <th className="px-6 py-4 text-right">Wert</th>
+              <th className="px-6 py-4"></th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
@@ -61,6 +84,20 @@ export function ProgressLog({ user }: { user: User }) {
                     <span className="text-slate-400 font-medium ml-1">
                       {catalogItem?.unit}
                     </span>
+                  </td>
+                  <td className="px-6 py-4 text-right">
+                    <button
+                      onClick={() => handleDelete(achievement.id)}
+                      disabled={deletingId === achievement.id}
+                      className="text-slate-400 hover:text-red-500 transition-colors p-2 rounded-full hover:bg-red-50"
+                      title="Eintrag löschen"
+                    >
+                      {deletingId === achievement.id ? (
+                        <Loader2 size={18} className="animate-spin text-slate-400" />
+                      ) : (
+                        <Trash2 size={18} />
+                      )}
+                    </button>
                   </td>
                 </tr>
               );
