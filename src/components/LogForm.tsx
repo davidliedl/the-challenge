@@ -34,7 +34,6 @@ export function LogForm({
     e.preventDefault();
     if (currentUser && exercise && value && date) {
       logAchievement.mutate({
-        userName: currentUser,
         exercise,
         value: parseFloat(value),
         date: new Date(date!).toISOString(),

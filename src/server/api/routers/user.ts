@@ -1,8 +1,8 @@
 import { z } from "zod";
-import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
+import { createTRPCRouter, unsafePublicProcedure } from "~/server/api/trpc";
 
 export const userRouter = createTRPCRouter({
-  getAll: publicProcedure.query(({ ctx }) => {
+  getAll: unsafePublicProcedure.query(({ ctx }) => {
     return ctx.db.user.findMany({
       include: {
         goals: true,
@@ -11,7 +11,17 @@ export const userRouter = createTRPCRouter({
     });
   }),
 
-  register: publicProcedure
+  hasPassword: unsafePublicProcedure
+    .input(z.object({ name: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const user = await ctx.db.user.findUnique({
+        where: { name: input.name },
+        select: { password: true },
+      });
+      return !!user?.password;
+    }),
+
+  register: unsafePublicProcedure
     .input(
       z.object({
         name: z.string().min(1),

@@ -96,7 +96,6 @@ export default function StatusPage() {
     setLoggingId(exercise);
     try {
       await createAchievement.mutateAsync({
-        userName: currentUser,
         exercise,
         value,
         date: new Date().toISOString(),
