@@ -19,6 +19,7 @@ export function RegisterForm({
   onSuccess: (name: string) => void;
 }) {
   const [name, setName] = useState(currentUser || "");
+  const [pin, setPin] = useState("");
   const [selections, setSelections] = useState<
     {
       exercise: string;
@@ -63,9 +64,30 @@ export function RegisterForm({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    // Validate pin if new user
+    if (!currentUser && pin.length < 6) return;
+
     if (name && selections.length > 0 && !isNameTaken) {
       register.mutate({
         name,
+        // Only send pin if new user. If existing user (currentUser is set), pin might be ignored or handled differently.
+        // But our backend now expects 'pin'. If refining existing user, we might need to handle this.
+        // Actually, this form is shared for "New Register" (no currentUser) and "Add Goals" (currentUser exists).
+        // If currentUser exists, we shouldn't ask for/send pin unless we want to allow pin reset?
+        // Let's assume for "Add Goals" we pass a dummy or keep existing.
+        // The current backend forces `pin` in Zod schema.
+        // We should make `pin` optional in backend or pass a dummy here if currentUser is set.
+        // BETTER: user.register should make pin optional if just adding goals?
+        // OR: Separation of concerns. create vs update.
+        // For now, to keep it simple: If currentUser, send "000000" (ignored if we check existence) or current Pin?
+        // Let's modify backend to make pin optional using .optional() in Zod and handling it?
+        // Ah, the user request says "when a user registers, he should directly add the pin".
+        // This implies new users. For existing users adding goals, they are already logged in presumably?
+        // But this component `RegisterForm` is used in `start/page.tsx` for new users AND `status/page.tsx` for adding goals.
+        // I need to adjust backend to allow optional pin or handle "Edit mode".
+
+        // Send pin only if it's set (new user)
+        pin: pin || undefined,
         goals: selections.map((s) => ({
           exercise: s.exercise,
           target: s.target * 12, // Annual target
@@ -107,6 +129,26 @@ export function RegisterForm({
                 </p>
               </div>
             )}
+
+            <div className="pt-4">
+              <label className="block text-sm font-semibold text-slate-700 mb-2 text-center text-lg">
+                Dein 6-stelliger Pin
+              </label>
+              <input
+                type="password"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                maxLength={6}
+                value={pin}
+                onChange={(e) => setPin(e.target.value.replace(/[^0-9]/g, ""))}
+                className="w-full text-center text-4xl font-black tracking-[0.5em] py-3 bg-slate-50 rounded-xl border-2 border-slate-200 focus:border-slate-800 focus:outline-none"
+                placeholder="••••••"
+                required
+              />
+              <p className="text-center text-xs text-slate-400 mt-2">
+                Diesen Pin brauchst du zum Einloggen.
+              </p>
+            </div>
           </div>
         )}
 
@@ -202,10 +244,9 @@ export function RegisterForm({
         <button
           type="submit"
           disabled={
-            !name ||
+            (!currentUser && (!name || pin.length < 6 || isNameTaken)) ||
             selections.length === 0 ||
-            register.isPending ||
-            isNameTaken
+            register.isPending
           }
           className="w-full py-4 bg-slate-800 text-white rounded-xl font-bold text-lg hover:bg-slate-900 focus:ring-4 focus:ring-slate-100 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
         >
