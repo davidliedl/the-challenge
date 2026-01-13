@@ -47,15 +47,19 @@ export default function BurnupPage() {
     if (!stats || !selectedExercise) return [];
 
     const now = new Date();
+    // Start of Year
     const startOfYear = new Date(now.getFullYear(), 0, 1);
-    const dayOfYear = Math.floor(
-      (now.getTime() - startOfYear.getTime()) / (1000 * 60 * 60 * 24)
-    );
+    // End of THIS Month
+    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
 
-    // Create array of days from Jan 1 to today
-    const days = Array.from({ length: dayOfYear + 1 }, (_, i) => {
+    const timeDiff = endOfMonth.getTime() - startOfYear.getTime();
+    const daysCount = Math.ceil(timeDiff / (1000 * 3600 * 24));
+
+    // Create array of days from Jan 1 to end of current month
+    const days = Array.from({ length: daysCount + 1 }, (_, i) => {
       const d = new Date(startOfYear);
       d.setDate(d.getDate() + i);
+      const isFuture = d > now;
       return {
         date: d.toISOString().split("T")[0],
         displayDate: d.toLocaleDateString("de-DE", {
@@ -63,22 +67,40 @@ export default function BurnupPage() {
           month: "2-digit",
         }),
         timestamp: d.getTime(),
+        isFuture,
       };
     });
+
+    // Determine the "Target" reference.
+    // We'll use the current user's goal if available, otherwise the XL standard.
+    const currentUserStats = stats.find((u) => u.name === currentUser);
+    const currentUserGoal = currentUserStats?.goals.find(
+      (g) => g.exercise === selectedExercise
+    );
+    const catalogInfo = EXERCISE_CATALOG.find(
+      (e) => e.exercise === selectedExercise
+    );
+
+    // Default to XL if no user goal
+    const annualTarget = currentUserGoal
+      ? currentUserGoal.target
+      : catalogInfo
+      ? catalogInfo.XL * 12
+      : 100;
 
     // Calculate cumulative values for each user
     const usersData = stats
       .filter((u) => u.goals.some((g) => g.exercise === selectedExercise))
       .map((u) => {
         const goal = u.goals.find((g) => g.exercise === selectedExercise)!;
-        const catalogInfo = EXERCISE_CATALOG.find(
+        const info = EXERCISE_CATALOG.find(
           (e) => e.exercise === selectedExercise
         );
         let level: "S" | "M" | "L" | "XL" = "S";
-        if (catalogInfo) {
-          if (goal.target >= catalogInfo.XL * 12) level = "XL";
-          else if (goal.target >= catalogInfo.L * 12) level = "L";
-          else if (goal.target >= catalogInfo.M * 12) level = "M";
+        if (info) {
+          if (goal.target >= info.XL * 12) level = "XL";
+          else if (goal.target >= info.L * 12) level = "L";
+          else if (goal.target >= info.M * 12) level = "M";
         }
 
         const achievements = u.achievements
@@ -93,19 +115,25 @@ export default function BurnupPage() {
         // Fill data for every day
         let achIndex = 0;
         days.forEach((day) => {
+          // If day is in future, we don't plot the user line (keep it null or undefined)
+          // UNLESS we want a flat line? Usually burnups stop at today.
+          if (day.isFuture) return;
+
           // Add up all achievements on or before this day
-          // Optimization: since achievements are sorted, we can continue from last index
           while (achIndex < achievements.length) {
-            const achDate = new Date(achievements[achIndex].date).setHours(
+            const currentAch = achievements[achIndex];
+            if (!currentAch) break; // Safety check
+
+            const achDate = new Date(currentAch.date).setHours(0, 0, 0, 0);
+            const currentDayDate = new Date(day.date as string).setHours(
               0,
               0,
               0,
               0
             );
-            const currentDayDate = new Date(day.date).setHours(0, 0, 0, 0);
 
             if (achDate <= currentDayDate) {
-              cumulative += achievements[achIndex].value;
+              cumulative += currentAch.value;
               achIndex++;
             } else {
               break;
@@ -128,18 +156,26 @@ export default function BurnupPage() {
         };
       });
 
-    // Format for Recharts: Array of objects { date: '...', user1: 100, user2: 120, ... }
-    return days.map((day) => {
+    // Format for Recharts
+    return days.map((day, index) => {
       const point: any = {
         name: day.displayDate,
         date: day.date,
+        // Linear Target Line: y = mx.
+        // Total days in year = 365 (approx).
+        // value = (index / 365) * annualTarget
+        target: (index / 365) * annualTarget,
       };
+
       usersData.forEach((u) => {
-        point[u.name] = u.data[day.date!] || 0;
+        // Only add data point if it exists (not future)
+        if (u.data[day.date!] !== undefined) {
+          point[u.name] = u.data[day.date!];
+        }
       });
       return point;
     });
-  }, [stats, selectedExercise]);
+  }, [stats, selectedExercise, currentUser]);
 
   const usersList = useMemo(() => {
     if (!stats) return [];
@@ -325,6 +361,18 @@ export default function BurnupPage() {
                   axisLine={false}
                 />
                 <Tooltip content={<CustomTooltip />} />
+
+                {/* Target Line - Dotted Grey */}
+                <Line
+                  type="monotone"
+                  dataKey="target"
+                  stroke="#94a3b8"
+                  strokeWidth={2}
+                  strokeDasharray="5 5"
+                  dot={false}
+                  activeDot={false}
+                  name="Target"
+                />
 
                 {usersList.map((user) => (
                   <Line
