@@ -9,6 +9,7 @@ import {
   ListChecks,
   UserCheck,
   LogOut,
+  TrendingUp,
 } from "lucide-react";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
@@ -41,6 +42,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
   const navItems = [
     { name: "STATUS", href: "/status", icon: UserCheck },
     { name: "RENNEN", href: "/race", icon: Trophy },
+    { name: "BURNUP", href: "/burnup", icon: TrendingUp },
     { name: "ÜBERBLICK", href: "/overview", icon: ListChecks },
   ];
 
@@ -76,7 +78,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
           </header>
 
           {/* Bottom Row: Navigation */}
-          <nav className="bg-white rounded-3xl p-2 border border-slate-100 grid grid-cols-3 gap-2">
+          <nav className="bg-white rounded-3xl p-2 border border-slate-100 grid grid-cols-4 gap-2">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = pathname === item.href;
